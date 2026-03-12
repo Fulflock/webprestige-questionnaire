@@ -1,24 +1,15 @@
 {
-      "version": 2,
-      "name": "webprestige-questionnaire",
-      "builds": [
-                {
-                              "src": "index.html",
-                              "use": "@vercel/static"
-                },
-                {
-                              "src": "api/submit.js",
-                              "use": "@vercel/node"
-                }
-      ],
-      "routes": [
-                {
-                              "src": "/api/submit",
-                              "dest": "/api/submit.js"
-                },
-                {
-                              "src": "/(.*)",
-                              "dest": "/index.html"
-                }
-      ]
+  "version": 2,
+  "routes": [
+    { "src": "/api/submit", "dest": "/api/submit.js" },
+    { "src": "/api/webhook/resend", "dest": "/api/webhook/resend.js" },
+    { "src": "/api/cron/relance", "dest": "/api/cron/relance.js" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/relance",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }
