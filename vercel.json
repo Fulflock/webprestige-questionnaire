@@ -1,0 +1,24 @@
+{
+      "version": 2,
+      "name": "webprestige-questionnaire",
+      "builds": [
+                {
+                              "src": "index.html",
+                              "use": "@vercel/static"
+                },
+                {
+                              "src": "api/submit.js",
+                              "use": "@vercel/node"
+                }
+      ],
+      "routes": [
+                {
+                              "src": "/api/submit",
+                              "dest": "/api/submit.js"
+                },
+                {
+                              "src": "/(.*)",
+                              "dest": "/index.html"
+                }
+      ]
+}
