@@ -7,156 +7,171 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        :root {
-            --primary: #6C3CE1;
-            --primary-light: #8B5CF6;
-            --primary-dark: #5521C8;
-            --accent: #F59E0B;
-            --bg: #0F0F1A;
-            --bg-card: #1A1A2E;
-            --bg-input: #252540;
-            --text: #F1F1F6;
-            --text-muted: #9191A8;
-            --border: #2D2D4A;
-            --success: #10B981;
-            --error: #EF4444;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            background: #FAFAF8;
+            color: #1B2631;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Background effect */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 20%, rgba(108, 60, 225, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .container {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Header */
+        /* === HEADER === */
         .header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            padding: 40px 20px 20px;
         }
-
-        .logo {
-            font-size: 1.75rem;
+        .header h1 {
+            font-size: 2.2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-light), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+            color: #C0784A;
+            letter-spacing: 1px;
         }
-
         .header p {
-            color: var(--text-muted);
+            color: #5D6D7E;
+            margin-top: 8px;
             font-size: 0.95rem;
-            line-height: 1.6;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* Progress bar */
+        /* === PROGRESS BAR === */
         .progress-container {
-            margin-bottom: 2rem;
+            max-width: 600px;
+            margin: 20px auto 30px;
+            padding: 0 20px;
         }
-
         .progress-steps {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.75rem;
+            position: relative;
+            margin-bottom: 8px;
         }
-
         .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 500;
+            color: #AAB7B8;
+            cursor: default;
             transition: color 0.3s;
+            flex: 1;
         }
-
-        .progress-step.active { color: var(--primary-light); }
-        .progress-step.done { color: var(--success); }
-
+        .progress-step .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #E8E4DF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #AAB7B8;
+            margin-bottom: 6px;
+            transition: all 0.3s;
+        }
+        .progress-step.active .step-dot {
+            background: #C0784A;
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(192, 120, 74, 0.35);
+        }
+        .progress-step.active {
+            color: #C0784A;
+            font-weight: 600;
+        }
+        .progress-step.done .step-dot {
+            background: #27AE60;
+            color: #fff;
+        }
+        .progress-step.done {
+            color: #27AE60;
+        }
         .progress-bar {
             height: 4px;
-            background: var(--border);
+            background: #E8E4DF;
             border-radius: 4px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            background: linear-gradient(90deg, #C0784A, #D4956B);
             border-radius: 4px;
-            transition: width 0.5s ease;
+            transition: width 0.4s ease;
+            width: 25%;
         }
 
-        /* Form sections */
+        /* === FORM CONTAINER === */
+        .form-wrapper {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        /* === FORM SECTIONS === */
         .form-section {
             display: none;
+        }
+        .form-section.active {
+            display: block;
             animation: fadeIn 0.4s ease;
         }
-
-        .form-section.active { display: block; }
-
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+        .form-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 20px rgba(27, 38, 49, 0.06);
+            border: 1px solid #EDE8E3;
         }
 
-        .section-subtitle {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-bottom: 1.5rem;
+        .form-card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1B2631;
+            margin-bottom: 4px;
+        }
+        .form-card h2 .emoji {
+            margin-right: 8px;
+        }
+        .form-card .subtitle {
+            color: #7F8C8D;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
         }
 
-        /* Form groups */
+        /* === FORM GROUPS === */
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 20px;
         }
-
-        label {
+        .form-group label {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.4rem;
-            color: var(--text);
+            font-weight: 600;
+            font-size: 0.88rem;
+            margin-bottom: 6px;
+            color: #1B2631;
         }
-
-        label .required {
-            color: var(--accent);
-            margin-left: 2px;
+        .form-group label .req {
+            color: #E74C3C;
         }
-
-        label .optional {
-            color: var(--text-muted);
+        .form-group label .opt {
+            color: #AAB7B8;
             font-weight: 400;
             font-size: 0.8rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 500px) {
+            .form-row { grid-template-columns: 1fr; }
         }
 
         input[type="text"],
@@ -166,571 +181,700 @@
         textarea,
         select {
             width: 100%;
-            padding: 0.75rem 1rem;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
+            padding: 12px 14px;
+            border: 2px solid #E8E4DF;
             border-radius: 10px;
-            color: var(--text);
+            font-size: 0.92rem;
             font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
+            color: #1B2631;
+            background: #FAFAF8;
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
         }
-
         input:focus, textarea:focus, select:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(108, 60, 225, 0.15);
+            border-color: #C0784A;
+            box-shadow: 0 0 0 3px rgba(192, 120, 74, 0.12);
         }
-
-        textarea { resize: vertical; min-height: 90px; }
-
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
         select {
+            cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239191A8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23AAB7B8'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 1rem center;
-            padding-right: 2.5rem;
+            background-position: right 14px center;
         }
 
-        select option { background: var(--bg-card); color: var(--text); }
+        .error-msg {
+            display: none;
+            color: #E74C3C;
+            font-size: 0.78rem;
+            margin-top: 4px;
+        }
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: #E74C3C;
+        }
+        .form-group.error .error-msg {
+            display: block;
+        }
 
-        /* Checkbox grid */
-        .checkbox-grid {
+        /* === SECTOR EMOJI GRID === */
+        .sector-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
         }
+        .sector-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px 8px;
+            border: 2px solid #E8E4DF;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+            text-align: center;
+        }
+        .sector-card:hover {
+            border-color: #D4956B;
+            background: #FFF8F3;
+        }
+        .sector-card.selected {
+            border-color: #C0784A;
+            background: #FFF3EB;
+            box-shadow: 0 2px 10px rgba(192, 120, 74, 0.15);
+        }
+        .sector-card .sector-emoji {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+        .sector-card .sector-label {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #1B2631;
+        }
+        .sector-card input { display: none; }
 
-        .checkbox-item {
+        /* === RADIO CARDS === */
+        .radio-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .radio-card {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 0.75rem;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            gap: 10px;
+            padding: 14px 16px;
+            border: 2px solid #E8E4DF;
+            border-radius: 12px;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            font-size: 0.85rem;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        .radio-card:hover {
+            border-color: #D4956B;
+            background: #FFF8F3;
+        }
+        .radio-card.selected {
+            border-color: #C0784A;
+            background: #FFF3EB;
+        }
+        .radio-card input { display: none; }
+        .radio-card .card-emoji { font-size: 1.3rem; }
+        .radio-card .card-label { font-size: 0.88rem; font-weight: 500; }
+
+        /* === CHECKBOX CARDS (pages) === */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .checkbox-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 2px solid #E8E4DF;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+        .checkbox-card:hover {
+            border-color: #D4956B;
+        }
+        .checkbox-card.selected {
+            border-color: #C0784A;
+            background: #FFF3EB;
+        }
+        .checkbox-card input { display: none; }
+        .checkbox-card .check-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid #E8E4DF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .checkbox-card.selected .check-icon {
+            background: #C0784A;
+            border-color: #C0784A;
+            color: #fff;
         }
 
-        .checkbox-item:hover { border-color: var(--primary-light); }
-
-        .checkbox-item input {
-            accent-color: var(--primary);
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Color picker grid */
+        /* === COLOR PICKER === */
         .color-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 10px;
         }
-
-        .color-option {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            border: 2px solid transparent;
+        .color-dot {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
+            border: 3px solid transparent;
+            transition: all 0.2s;
             position: relative;
         }
-
-        .color-option:hover { transform: scale(1.1); }
-        .color-option.selected { border-color: #fff; transform: scale(1.1); }
-        .color-option.selected::after {
-            content: '\2713';
+        .color-dot:hover {
+            transform: scale(1.15);
+        }
+        .color-dot.selected {
+            border-color: #1B2631;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .color-dot.selected::after {
+            content: '✓';
             position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: #fff;
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
-
-        /* Radio cards */
-        .radio-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-        }
-
-        .radio-card {
-            padding: 0.75rem;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .radio-card:hover { border-color: var(--primary-light); }
-        .radio-card.selected {
-            border-color: var(--primary-light);
-            background: rgba(108, 60, 225, 0.15);
-        }
-
-        .radio-card .emoji { font-size: 1.5rem; margin-bottom: 0.25rem; }
-        .radio-card .card-label { font-size: 0.85rem; font-weight: 500; }
-        .radio-card input { display: none; }
-
-        /* Row layout */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        /* Buttons */
-        .btn-row {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.75rem;
-        }
-
-        .btn {
-            padding: 0.8rem 1.75rem;
-            border-radius: 10px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: #fff;
-            flex: 1;
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 4px 20px rgba(108, 60, 225, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--bg-input);
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
-
-        .btn-submit {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: #fff;
-            flex: 1;
+            font-weight: bold;
             font-size: 1rem;
-            padding: 1rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
 
-        .btn-submit:hover {
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        /* === FILE UPLOAD === */
+        .file-upload {
+            border: 2px dashed #E8E4DF;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        .file-upload:hover {
+            border-color: #C0784A;
+            background: #FFF8F3;
+        }
+        .file-upload.has-file {
+            border-color: #27AE60;
+            background: #F0FFF4;
+        }
+        .file-upload .upload-emoji { font-size: 1.8rem; margin-bottom: 8px; }
+        .file-upload .upload-text { font-size: 0.85rem; color: #7F8C8D; }
+        .file-upload .upload-hint { font-size: 0.75rem; color: #AAB7B8; margin-top: 4px; }
+        .file-upload input { display: none; }
+
+        /* === BUTTONS === */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+        .btn {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #C0784A, #D4956B);
+            color: #fff;
+            flex: 1;
+            box-shadow: 0 3px 15px rgba(192, 120, 74, 0.3);
+        }
+        .btn-primary:hover {
             transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(192, 120, 74, 0.4);
         }
-
-        .btn:disabled {
-            opacity: 0.5;
+        .btn-primary:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #E8E4DF;
+            color: #5D6D7E;
+        }
+        .btn-secondary:hover {
+            background: #DDD8D2;
         }
 
-        /* Success screen */
-        .success-screen {
+        /* === SUCCESS SCREEN === */
+        #success-screen {
             display: none;
             text-align: center;
-            padding: 3rem 1rem;
-            animation: fadeIn 0.5s ease;
+            padding: 60px 20px;
+            max-width: 500px;
+            margin: 0 auto;
         }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(16, 185, 129, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            font-size: 2.5rem;
+        #success-screen .success-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
         }
-
-        .success-screen h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.75rem;
+        #success-screen h2 {
+            font-size: 1.6rem;
+            color: #1B2631;
+            margin-bottom: 12px;
         }
-
-        .success-screen p {
-            color: var(--text-muted);
+        #success-screen p {
+            color: #5D6D7E;
             line-height: 1.6;
         }
 
-        /* Loading spinner */
+        /* === SPINNER === */
         .spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 2px solid rgba(255,255,255,0.3);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
-            margin-right: 8px;
             vertical-align: middle;
+            margin-right: 8px;
         }
-
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Validation */
-        .form-group.error input,
-        .form-group.error textarea,
-        .form-group.error select {
-            border-color: var(--error);
-        }
-
-        .error-msg {
-            color: var(--error);
-            font-size: 0.78rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        .form-group.error .error-msg { display: block; }
-
-        /* File input */
-        .file-upload {
-            border: 2px dashed var(--border);
-            border-radius: 10px;
-            padding: 1.25rem;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s;
-            background: var(--bg-input);
-        }
-
-        .file-upload:hover { border-color: var(--primary-light); }
-        .file-upload input { display: none; }
-        .file-upload .upload-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
-        .file-upload .upload-text { font-size: 0.85rem; color: var(--text-muted); }
-        .file-upload .upload-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
-        .file-upload.has-file { border-color: var(--success); }
-        .file-upload.has-file .upload-text { color: var(--success); }
-
-        /* Responsive */
-        @media (max-width: 560px) {
-            .container { padding: 1.25rem 1rem; }
-            .form-row, .checkbox-grid, .radio-cards { grid-template-columns: 1fr; }
-            .color-option { width: 38px; height: 38px; }
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">WebPrestige</div>
-            <p>Bienvenue ! Remplissez ce questionnaire pour que nous puissions cr&eacute;er le site web id&eacute;al pour votre commerce.</p>
-        </div>
 
-        <!-- Progress -->
-        <div class="progress-container">
-            <div class="progress-steps">
-                <span class="progress-step active" data-step="1">Votre commerce</span>
-                <span class="progress-step" data-step="2">Votre identit&eacute;</span>
-                <span class="progress-step" data-step="3">Votre site</span>
-                <span class="progress-step" data-step="4">Finalisation</span>
+    <!-- HEADER -->
+    <div class="header">
+        <h1>WebPrestige</h1>
+        <p>Bienvenue ! Remplissez ce questionnaire pour que nous puissions créer le site web idéal pour votre commerce.</p>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-container">
+        <div class="progress-steps">
+            <div class="progress-step active" data-step="1">
+                <div class="step-dot">1</div>
+                <span>Votre commerce</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: 25%"></div>
+            <div class="progress-step" data-step="2">
+                <div class="step-dot">2</div>
+                <span>Votre identité</span>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="step-dot">3</div>
+                <span>Votre site</span>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="step-dot">4</div>
+                <span>Finalisation</span>
             </div>
         </div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
 
-        <form id="questionnaire" novalidate>
+    <!-- FORM -->
+    <div class="form-wrapper">
+        <form id="questionnaire" onsubmit="return false;">
 
-            <!-- STEP 1: Commerce Info -->
+            <!-- STEP 1: Votre commerce -->
             <div class="form-section active" data-step="1">
-                <h2 class="section-title">Parlons de votre commerce</h2>
-                <p class="section-subtitle">Les informations de base pour bien d&eacute;marrer</p>
+                <div class="form-card">
+                    <h2><span class="emoji">🏪</span>Parlons de votre commerce</h2>
+                    <p class="subtitle">Les informations de base pour bien démarrer</p>
 
-                <div class="form-group">
-                    <label>Nom de votre commerce <span class="required">*</span></label>
-                    <input type="text" name="nom_commerce" placeholder="Ex : Pizza Roma, Salon Bella..." required>
-                    <div class="error-msg">Ce champ est requis</div>
-                </div>
-
-                <div class="form-row">
                     <div class="form-group">
-                        <label>Secteur d'activit&eacute; <span class="required">*</span></label>
-                        <select name="secteur" required>
-                            <option value="">Choisir...</option>
-                            <option value="Pizzeria">Pizzeria</option>
-                            <option value="Kebab / Snack">Kebab / Snack</option>
-                            <option value="Restaurant">Restaurant</option>
-                            <option value="Boulangerie">Boulangerie / P&acirc;tisserie</option>
-                            <option value="Commerce / Boutique">Commerce / Boutique</option>
-                            <option value="Coiffure / Beaut&eacute;">Coiffure / Beaut&eacute;</option>
-                            <option value="Garage / Auto">Garage / Auto</option>
-                            <option value="Artisan / BTP">Artisan / BTP</option>
-                            <option value="Sant&eacute; / Bien-&ecirc;tre">Sant&eacute; / Bien-&ecirc;tre</option>
-                            <option value="Sport / Loisirs">Sport / Loisirs</option>
-                            <option value="Service pro">Service pro</option>
-                            <option value="Autre">Autre</option>
-                        </select>
+                        <label>Nom de votre commerce <span class="req">*</span></label>
+                        <input type="text" name="nom_commerce" placeholder="Ex : Pizza Roma, Salon Bella..." required>
+                        <div class="error-msg">Ce champ est requis</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Secteur d'activité <span class="req">*</span></label>
+                        <div class="sector-grid">
+                            <div class="sector-card" onclick="selectSector(this, 'Pizzeria')">
+                                <input type="radio" name="secteur" value="Pizzeria">
+                                <span class="sector-emoji">🍕</span>
+                                <span class="sector-label">Pizzeria</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Kebab / Snack')">
+                                <input type="radio" name="secteur" value="Kebab / Snack">
+                                <span class="sector-emoji">🥙</span>
+                                <span class="sector-label">Kebab / Snack</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Restaurant')">
+                                <input type="radio" name="secteur" value="Restaurant">
+                                <span class="sector-emoji">🍽️</span>
+                                <span class="sector-label">Restaurant</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Boulangerie / Pâtisserie')">
+                                <input type="radio" name="secteur" value="Boulangerie / Pâtisserie">
+                                <span class="sector-emoji">🥐</span>
+                                <span class="sector-label">Boulangerie</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Commerce / Boutique')">
+                                <input type="radio" name="secteur" value="Commerce / Boutique">
+                                <span class="sector-emoji">🛍️</span>
+                                <span class="sector-label">Commerce</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Coiffure / Beauté')">
+                                <input type="radio" name="secteur" value="Coiffure / Beauté">
+                                <span class="sector-emoji">💇</span>
+                                <span class="sector-label">Coiffure / Beauté</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Garage / Auto')">
+                                <input type="radio" name="secteur" value="Garage / Auto">
+                                <span class="sector-emoji">🔧</span>
+                                <span class="sector-label">Garage / Auto</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Artisan / BTP')">
+                                <input type="radio" name="secteur" value="Artisan / BTP">
+                                <span class="sector-emoji">🏗️</span>
+                                <span class="sector-label">Artisan / BTP</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Santé / Bien-être')">
+                                <input type="radio" name="secteur" value="Santé / Bien-être">
+                                <span class="sector-emoji">🏥</span>
+                                <span class="sector-label">Santé</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Sport / Loisirs')">
+                                <input type="radio" name="secteur" value="Sport / Loisirs">
+                                <span class="sector-emoji">⚽</span>
+                                <span class="sector-label">Sport / Loisirs</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Service pro')">
+                                <input type="radio" name="secteur" value="Service pro">
+                                <span class="sector-emoji">💼</span>
+                                <span class="sector-label">Service pro</span>
+                            </div>
+                            <div class="sector-card" onclick="selectSector(this, 'Autre')">
+                                <input type="radio" name="secteur" value="Autre">
+                                <span class="sector-emoji">📌</span>
+                                <span class="sector-label">Autre</span>
+                            </div>
+                        </div>
                         <div class="error-msg">Veuillez choisir un secteur</div>
                     </div>
-                    <div class="form-group">
-                        <label>Commune <span class="required">*</span></label>
-                        <input type="text" name="commune" placeholder="Ex : Balma, L'Union..." required>
-                        <div class="error-msg">Ce champ est requis</div>
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Adresse compl&egrave;te <span class="optional">(optionnel)</span></label>
-                    <input type="text" name="adresse" placeholder="12 rue de la Paix, 31130 Balma">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>T&eacute;l&eacute;phone <span class="required">*</span></label>
-                        <input type="tel" name="telephone" placeholder="06 12 34 56 78" required>
-                        <div class="error-msg">Ce champ est requis</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Email <span class="required">*</span></label>
-                        <input type="email" name="email" placeholder="contact@votrecommerce.fr" required>
-                        <div class="error-msg">Veuillez entrer un email valide</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Horaires d'ouverture <span class="optional">(optionnel)</span></label>
-                    <textarea name="horaires" placeholder="Ex : Lun-Ven 9h-19h, Sam 10h-18h, Dim ferm&eacute;" rows="2"></textarea>
-                </div>
-
-                <div class="btn-row">
-                    <button type="button" class="btn btn-primary" onclick="nextStep()">Continuer</button>
-                </div>
-            </div>
-
-            <!-- STEP 2: Identity -->
-            <div class="form-section" data-step="2">
-                <h2 class="section-title">L'identit&eacute; de votre commerce</h2>
-                <p class="section-subtitle">Pour que votre site vous ressemble</p>
-
-                <div class="form-group">
-                    <label>Avez-vous un logo ?</label>
-                    <div class="radio-cards" data-name="a_logo">
-                        <div class="radio-card" onclick="selectRadio(this, 'a_logo', 'oui')">
-                            <div class="emoji">&#10004;&#65039;</div>
-                            <div class="card-label">Oui, j'en ai un</div>
-                            <input type="radio" name="a_logo" value="oui">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'a_logo', 'non')">
-                            <div class="emoji">&#10060;</div>
-                            <div class="card-label">Non, pas encore</div>
-                            <input type="radio" name="a_logo" value="non">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" id="logo-upload-group" style="display:none;">
-                    <label>Envoyez votre logo</label>
-                    <div class="file-upload" onclick="this.querySelector('input').click()">
-                        <input type="file" name="logo" accept="image/*" onchange="handleFile(this)">
-                        <div class="upload-icon">&#128228;</div>
-                        <div class="upload-text">Cliquez pour ajouter votre logo</div>
-                        <div class="upload-hint">PNG, JPG ou SVG (max 5 Mo)</div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Quelles couleurs repr&eacute;sentent votre commerce ? <span class="optional">(max 3)</span></label>
-                    <div class="color-grid" id="color-grid">
-                        <div class="color-option" style="background:#EF4444" onclick="toggleColor(this)" data-color="rouge"></div>
-                        <div class="color-option" style="background:#F97316" onclick="toggleColor(this)" data-color="orange"></div>
-                        <div class="color-option" style="background:#F59E0B" onclick="toggleColor(this)" data-color="jaune"></div>
-                        <div class="color-option" style="background:#22C55E" onclick="toggleColor(this)" data-color="vert"></div>
-                        <div class="color-option" style="background:#06B6D4" onclick="toggleColor(this)" data-color="cyan"></div>
-                        <div class="color-option" style="background:#3B82F6" onclick="toggleColor(this)" data-color="bleu"></div>
-                        <div class="color-option" style="background:#8B5CF6" onclick="toggleColor(this)" data-color="violet"></div>
-                        <div class="color-option" style="background:#EC4899" onclick="toggleColor(this)" data-color="rose"></div>
-                        <div class="color-option" style="background:#1F2937" onclick="toggleColor(this)" data-color="noir"></div>
-                        <div class="color-option" style="background:#F3F4F6; border:1px solid #555" onclick="toggleColor(this)" data-color="blanc"></div>
-                        <div class="color-option" style="background:#92400E" onclick="toggleColor(this)" data-color="marron"></div>
-                        <div class="color-option" style="background:#D4AF37" onclick="toggleColor(this)" data-color="or"></div>
-                    </div>
-                    <input type="hidden" name="couleurs" id="couleurs-input">
-                </div>
-
-                <div class="form-group">
-                    <label>D&eacute;crivez l'ambiance de votre commerce <span class="optional">(optionnel)</span></label>
-                    <textarea name="ambiance" placeholder="Ex : Chaleureuse et familiale, moderne et &eacute;l&eacute;gant, artisanal et authentique..." rows="2"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Avez-vous des photos de votre commerce ?</label>
-                    <div class="file-upload" onclick="this.querySelector('input').click()">
-                        <input type="file" name="photos" accept="image/*" multiple onchange="handleMultiFile(this)">
-                        <div class="upload-icon">&#128247;</div>
-                        <div class="upload-text">Cliquez pour ajouter des photos</div>
-                        <div class="upload-hint">Plusieurs fichiers possibles (max 10 Mo chacun)</div>
-                    </div>
-                </div>
-
-                <div class="btn-row">
-                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Retour</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep()">Continuer</button>
-                </div>
-            </div>
-
-            <!-- STEP 3: Site Preferences -->
-            <div class="form-section" data-step="3">
-                <h2 class="section-title">Votre futur site web</h2>
-                <p class="section-subtitle">Dites-nous ce que vous imaginez</p>
-
-                <div class="form-group">
-                    <label>Quelles pages souhaitez-vous ? <span class="required">*</span></label>
-                    <div class="checkbox-grid">
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="accueil" checked disabled> Accueil</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="menu_carte"> Menu / Carte</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="services"> Services</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="galerie"> Galerie photos</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="avis"> Avis clients</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="tarifs"> Tarifs</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="contact"> Contact</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="reservation"> R&eacute;servation</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="equipe"> L'&eacute;quipe</label>
-                        <label class="checkbox-item"><input type="checkbox" name="pages" value="a_propos"> &Agrave; propos</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Qu'est-ce qui rend votre commerce unique ? <span class="required">*</span></label>
-                    <textarea name="points_forts" placeholder="Ex : Pizzas au feu de bois, produits locaux, 20 ans d'exp&eacute;rience, service &agrave; domicile..." required></textarea>
-                    <div class="error-msg">Dites-nous ce qui vous rend sp&eacute;cial !</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Quel style de site vous attire ? <span class="required">*</span></label>
-                    <div class="radio-cards" data-name="style_site">
-                        <div class="radio-card" onclick="selectRadio(this, 'style_site', 'moderne')">
-                            <div class="emoji">&#9889;</div>
-                            <div class="card-label">Moderne & Minimaliste</div>
-                            <input type="radio" name="style_site" value="moderne">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'style_site', 'chaleureux')">
-                            <div class="emoji">&#127793;</div>
-                            <div class="card-label">Chaleureux & Traditionnel</div>
-                            <input type="radio" name="style_site" value="chaleureux">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'style_site', 'elegant')">
-                            <div class="emoji">&#10024;</div>
-                            <div class="card-label">&Eacute;l&eacute;gant & Premium</div>
-                            <input type="radio" name="style_site" value="elegant">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'style_site', 'dynamique')">
-                            <div class="emoji">&#127912;</div>
-                            <div class="card-label">Color&eacute; & Dynamique</div>
-                            <input type="radio" name="style_site" value="dynamique">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Avez-vous un site web de r&eacute;f&eacute;rence que vous aimez ? <span class="optional">(optionnel)</span></label>
-                    <input type="url" name="site_reference" placeholder="https://www.exemple.com">
-                </div>
-
-                <div class="form-group">
-                    <label>R&eacute;seaux sociaux existants <span class="optional">(optionnel)</span></label>
                     <div class="form-row">
-                        <input type="url" name="facebook" placeholder="Facebook (lien)">
-                        <input type="url" name="instagram" placeholder="Instagram (lien)">
+                        <div class="form-group">
+                            <label>Commune <span class="req">*</span></label>
+                            <input type="text" name="commune" placeholder="Ex : Balma, L'Union..." required>
+                            <div class="error-msg">Ce champ est requis</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Adresse complète <span class="opt">(optionnel)</span></label>
+                            <input type="text" name="adresse" placeholder="12 rue de la Paix, 31130 Balma">
+                        </div>
                     </div>
-                </div>
 
-                <div class="btn-row">
-                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Retour</button>
-                    <button type="button" class="btn btn-primary" onclick="nextStep()">Continuer</button>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Téléphone <span class="req">*</span></label>
+                            <input type="tel" name="telephone" placeholder="06 12 34 56 78" required>
+                            <div class="error-msg">Ce champ est requis</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email <span class="req">*</span></label>
+                            <input type="email" name="email" placeholder="contact@votrecommerce.fr" required>
+                            <div class="error-msg">Veuillez entrer un email valide</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Horaires d'ouverture <span class="opt">(optionnel)</span></label>
+                        <textarea name="horaires" placeholder="Ex : Lun-Ven 9h-19h, Sam 10h-18h, Dim fermé" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Continuer →</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- STEP 4: Final -->
+            <!-- STEP 2: Identité -->
+            <div class="form-section" data-step="2">
+                <div class="form-card">
+                    <h2><span class="emoji">🎨</span>L'identité de votre commerce</h2>
+                    <p class="subtitle">Pour que votre site vous ressemble</p>
+
+                    <div class="form-group">
+                        <label>Avez-vous un logo ?</label>
+                        <div class="radio-cards">
+                            <div class="radio-card" onclick="selectRadio(this, 'a_logo', 'oui')">
+                                <input type="radio" name="a_logo" value="oui">
+                                <span class="card-emoji">✔️</span>
+                                <span class="card-label">Oui, j'en ai un</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'a_logo', 'non')">
+                                <input type="radio" name="a_logo" value="non">
+                                <span class="card-emoji">❌</span>
+                                <span class="card-label">Non, pas encore</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="logo-upload-group" style="display: none;">
+                        <label>Envoyez votre logo</label>
+                        <div class="file-upload" onclick="this.querySelector('input').click()">
+                            <div class="upload-emoji">📤</div>
+                            <div class="upload-text">Cliquez pour ajouter votre logo</div>
+                            <div class="upload-hint">PNG, JPG ou SVG (max 5 Mo)</div>
+                            <input type="file" name="logo" accept="image/*" onchange="handleFile(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quelles couleurs représentent votre commerce ? <span class="opt">(max 3)</span></label>
+                        <div class="color-grid">
+                            <div class="color-dot" style="background:#E74C3C" data-color="Rouge" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#E67E22" data-color="Orange" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#F1C40F" data-color="Jaune" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#27AE60" data-color="Vert" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#2980B9" data-color="Bleu" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#8E44AD" data-color="Violet" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#E91E63" data-color="Rose" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#1B2631" data-color="Noir" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#ECF0F1" data-color="Blanc" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#C0784A" data-color="Marron" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:#BDC3C7" data-color="Gris" onclick="toggleColor(this)"></div>
+                            <div class="color-dot" style="background:linear-gradient(135deg,#E74C3C,#F1C40F,#27AE60,#2980B9)" data-color="Multicolore" onclick="toggleColor(this)"></div>
+                        </div>
+                        <input type="hidden" name="couleurs_pref" id="couleurs-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Décrivez l'ambiance de votre commerce <span class="opt">(optionnel)</span></label>
+                        <textarea name="ambiance" placeholder="Ex : Chaleureuse et familiale, moderne et épurée..." rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Avez-vous des photos de votre commerce ?</label>
+                        <div class="file-upload" onclick="this.querySelector('input').click()">
+                            <div class="upload-emoji">📷</div>
+                            <div class="upload-text">Cliquez pour ajouter des photos</div>
+                            <div class="upload-hint">Plusieurs fichiers possibles (max 10 Mo chacun)</div>
+                            <input type="file" name="photos" accept="image/*" multiple onchange="handleMultiFile(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Retour</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Continuer →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Votre site -->
+            <div class="form-section" data-step="3">
+                <div class="form-card">
+                    <h2><span class="emoji">🌐</span>Votre futur site web</h2>
+                    <p class="subtitle">Dites-nous ce que vous imaginez</p>
+
+                    <div class="form-group">
+                        <label>Quelles pages souhaitez-vous ? <span class="req">*</span></label>
+                        <div class="checkbox-grid">
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Accueil">
+                                <div class="check-icon">✓</div>
+                                <span>🏠 Accueil</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Menu / Carte">
+                                <div class="check-icon">✓</div>
+                                <span>📋 Menu / Carte</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Services">
+                                <div class="check-icon">✓</div>
+                                <span>⚙️ Services</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Galerie photos">
+                                <div class="check-icon">✓</div>
+                                <span>🖼️ Galerie photos</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Avis clients">
+                                <div class="check-icon">✓</div>
+                                <span>⭐ Avis clients</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Tarifs">
+                                <div class="check-icon">✓</div>
+                                <span>💰 Tarifs</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Contact">
+                                <div class="check-icon">✓</div>
+                                <span>📞 Contact</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="Réservation">
+                                <div class="check-icon">✓</div>
+                                <span>📅 Réservation</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="L'équipe">
+                                <div class="check-icon">✓</div>
+                                <span>👥 L'équipe</span>
+                            </div>
+                            <div class="checkbox-card" onclick="toggleCheckbox(this)">
+                                <input type="checkbox" name="pages" value="À propos">
+                                <div class="check-icon">✓</div>
+                                <span>ℹ️ À propos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Qu'est-ce qui rend votre commerce unique ? <span class="req">*</span></label>
+                        <textarea name="points_forts" placeholder="Dites-nous ce qui vous rend spécial !" rows="3" required></textarea>
+                        <div class="error-msg">Ce champ est requis</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quel style de site vous attire ? <span class="req">*</span></label>
+                        <div class="radio-cards">
+                            <div class="radio-card" onclick="selectRadio(this, 'style_site', 'Moderne & Minimaliste')">
+                                <input type="radio" name="style_site" value="Moderne & Minimaliste">
+                                <span class="card-emoji">⚡</span>
+                                <span class="card-label">Moderne & Minimaliste</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'style_site', 'Chaleureux & Traditionnel')">
+                                <input type="radio" name="style_site" value="Chaleureux & Traditionnel">
+                                <span class="card-emoji">🌱</span>
+                                <span class="card-label">Chaleureux & Traditionnel</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'style_site', 'Élégant & Premium')">
+                                <input type="radio" name="style_site" value="Élégant & Premium">
+                                <span class="card-emoji">✨</span>
+                                <span class="card-label">Élégant & Premium</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'style_site', 'Coloré & Dynamique')">
+                                <input type="radio" name="style_site" value="Coloré & Dynamique">
+                                <span class="card-emoji">🎨</span>
+                                <span class="card-label">Coloré & Dynamique</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Avez-vous un site web de référence que vous aimez ? <span class="opt">(optionnel)</span></label>
+                        <input type="url" name="site_reference" placeholder="https://www.exemple.fr">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Facebook <span class="opt">(optionnel)</span></label>
+                            <input type="url" name="facebook" placeholder="https://facebook.com/...">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram <span class="opt">(optionnel)</span></label>
+                            <input type="url" name="instagram" placeholder="https://instagram.com/...">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Retour</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Continuer →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Finalisation -->
             <div class="form-section" data-step="4">
-                <h2 class="section-title">Derni&egrave;res infos</h2>
-                <p class="section-subtitle">On y est presque !</p>
+                <div class="form-card">
+                    <h2><span class="emoji">🎯</span>Dernières infos</h2>
+                    <p class="subtitle">On y est presque !</p>
 
-                <div class="form-group">
-                    <label>Quel contenu devrait absolument figurer sur votre site ? <span class="optional">(optionnel)</span></label>
-                    <textarea name="contenu_important" placeholder="Ex : Notre sp&eacute;cialit&eacute; c'est le kebab maison, on veut mettre en avant nos formules midi..." rows="3"></textarea>
-                </div>
+                    <div class="form-group">
+                        <label>Quel contenu devrait absolument figurer sur votre site ? <span class="opt">(optionnel)</span></label>
+                        <textarea name="contenu_important" placeholder="Ex : Notre carte en PDF, les avis Google, une vidéo de présentation..." rows="3"></textarea>
+                    </div>
 
-                <div class="form-group">
-                    <label>Avez-vous un budget en t&ecirc;te ?</label>
-                    <div class="radio-cards" data-name="budget">
-                        <div class="radio-card" onclick="selectRadio(this, 'budget', '500-700')">
-                            <div class="emoji">&#128176;</div>
-                            <div class="card-label">500 - 700 &euro;</div>
-                            <input type="radio" name="budget" value="500-700">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'budget', '700-900')">
-                            <div class="emoji">&#128176;&#128176;</div>
-                            <div class="card-label">700 - 900 &euro;</div>
-                            <input type="radio" name="budget" value="700-900">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'budget', '900-1200')">
-                            <div class="emoji">&#128176;&#128176;&#128176;</div>
-                            <div class="card-label">900 - 1 200 &euro;</div>
-                            <input type="radio" name="budget" value="900-1200">
-                        </div>
-                        <div class="radio-card" onclick="selectRadio(this, 'budget', 'a_discuter')">
-                            <div class="emoji">&#128172;</div>
-                            <div class="card-label">&Agrave; discuter</div>
-                            <input type="radio" name="budget" value="a_discuter">
+                    <div class="form-group">
+                        <label>Avez-vous un budget en tête ?</label>
+                        <div class="radio-cards">
+                            <div class="radio-card" onclick="selectRadio(this, 'budget', '500 - 700 €')">
+                                <input type="radio" name="budget" value="500 - 700 €">
+                                <span class="card-emoji">💰</span>
+                                <span class="card-label">500 - 700 €</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'budget', '700 - 900 €')">
+                                <input type="radio" name="budget" value="700 - 900 €">
+                                <span class="card-emoji">💰💰</span>
+                                <span class="card-label">700 - 900 €</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'budget', '900 - 1 200 €')">
+                                <input type="radio" name="budget" value="900 - 1 200 €">
+                                <span class="card-emoji">💰💰💰</span>
+                                <span class="card-label">900 - 1 200 €</span>
+                            </div>
+                            <div class="radio-card" onclick="selectRadio(this, 'budget', 'À discuter')">
+                                <input type="radio" name="budget" value="À discuter">
+                                <span class="card-emoji">💬</span>
+                                <span class="card-label">À discuter</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label>Quand souhaitez-vous que le site soit pr&ecirc;t ?</label>
-                    <select name="delai">
-                        <option value="">Choisir...</option>
-                        <option value="urgent">D&egrave;s que possible</option>
-                        <option value="2_semaines">Dans 2 semaines</option>
-                        <option value="1_mois">Dans 1 mois</option>
-                        <option value="pas_presse">Pas press&eacute;</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label>Quand souhaitez-vous que le site soit prêt ?</label>
+                        <select name="delai">
+                            <option value="">Choisir...</option>
+                            <option value="Dès que possible">Dès que possible</option>
+                            <option value="Dans 2 semaines">Dans 2 semaines</option>
+                            <option value="Dans 1 mois">Dans 1 mois</option>
+                            <option value="Pas pressé">Pas pressé</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label>Quelque chose &agrave; ajouter ? <span class="optional">(optionnel)</span></label>
-                    <textarea name="commentaires" placeholder="Questions, pr&eacute;cisions, remarques..." rows="3"></textarea>
-                </div>
+                    <div class="form-group">
+                        <label>Quelque chose à ajouter ? <span class="opt">(optionnel)</span></label>
+                        <textarea name="commentaires" placeholder="Une question, un détail important..." rows="3"></textarea>
+                    </div>
 
-                <div class="btn-row">
-                    <button type="button" class="btn btn-secondary" onclick="prevStep()">Retour</button>
-                    <button type="button" class="btn btn-submit" id="submit-btn" onclick="submitForm()">
-                        Envoyer mon questionnaire
-                    </button>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Retour</button>
+                        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitForm()">Envoyer mon questionnaire 🚀</button>
+                    </div>
                 </div>
             </div>
+
         </form>
 
-        <!-- Success Screen -->
-        <div class="success-screen" id="success-screen">
-            <div class="success-icon">&#127881;</div>
-            <h2>Merci pour vos r&eacute;ponses !</h2>
-            <p>Nous avons bien re&ccedil;u votre questionnaire.<br>Notre &eacute;quipe va &eacute;tudier vos besoins et commencer la cr&eacute;ation de votre site web personnalis&eacute;.<br><br><strong>Vous recevrez des nouvelles tr&egrave;s bient&ocirc;t !</strong></p>
+        <!-- SUCCESS SCREEN -->
+        <div id="success-screen">
+            <div class="success-emoji">🎉</div>
+            <h2>Merci pour vos réponses !</h2>
+            <p>Nous avons bien reçu votre questionnaire.<br>Notre équipe va étudier vos besoins et commencer la création de votre site web personnalisé.<br><strong>Vous recevrez des nouvelles très bientôt !</strong></p>
         </div>
     </div>
 
@@ -760,6 +904,7 @@
             const section = document.querySelector(`.form-section[data-step="${step}"]`);
             const requiredFields = section.querySelectorAll('[required]');
             let valid = true;
+
             requiredFields.forEach(field => {
                 const group = field.closest('.form-group');
                 if (!field.value.trim()) {
@@ -772,6 +917,17 @@
                     group.classList.remove('error');
                 }
             });
+
+            // Check sector selection on step 1
+            if (step === 1) {
+                const sectorGroup = section.querySelector('.sector-grid')?.closest('.form-group');
+                const sectorSelected = section.querySelector('input[name="secteur"]:checked');
+                if (!sectorSelected && sectorGroup) {
+                    sectorGroup.classList.add('error');
+                    valid = false;
+                }
+            }
+
             return valid;
         }
 
@@ -790,16 +946,29 @@
             }
         }
 
+        // Sector selection
+        function selectSector(card, value) {
+            card.closest('.sector-grid').querySelectorAll('.sector-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            card.querySelector('input').checked = true;
+            card.closest('.form-group')?.classList.remove('error');
+        }
+
         // Radio cards
         function selectRadio(card, name, value) {
             card.closest('.radio-cards').querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             card.querySelector('input').checked = true;
-
-            // Show logo upload if "oui"
             if (name === 'a_logo') {
                 document.getElementById('logo-upload-group').style.display = value === 'oui' ? 'block' : 'none';
             }
+        }
+
+        // Checkbox cards
+        function toggleCheckbox(card) {
+            const input = card.querySelector('input');
+            input.checked = !input.checked;
+            card.classList.toggle('selected', input.checked);
         }
 
         // Color picker
@@ -823,12 +992,11 @@
                 container.querySelector('.upload-text').textContent = input.files[0].name;
             }
         }
-
         function handleMultiFile(input) {
             const container = input.closest('.file-upload');
             if (input.files.length > 0) {
                 container.classList.add('has-file');
-                container.querySelector('.upload-text').textContent = `${input.files.length} photo(s) ajoutee(s)`;
+                container.querySelector('.upload-text').textContent = `${input.files.length} photo(s) ajoutée(s)`;
             }
         }
 
@@ -839,7 +1007,7 @@
             });
         });
 
-        // Submit
+        // Submit form
         async function submitForm() {
             if (!validateStep(currentStep)) return;
 
@@ -847,7 +1015,6 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
 
-            // Gather data
             const form = document.getElementById('questionnaire');
             const data = {};
             const formData = new FormData(form);
@@ -860,11 +1027,11 @@
                     data[key] = value;
                 }
             }
+
             data.couleurs = selectedColors;
             data.submitted_at = new Date().toISOString();
 
             try {
-                // Send to API endpoint
                 const response = await fetch('/api/submit', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -873,17 +1040,15 @@
 
                 if (!response.ok) throw new Error('Erreur serveur');
 
-                // Show success
                 form.style.display = 'none';
                 document.querySelector('.progress-container').style.display = 'none';
                 document.getElementById('success-screen').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (err) {
-                // Even if API fails, show success (we'll handle retries server-side)
                 form.style.display = 'none';
                 document.querySelector('.progress-container').style.display = 'none';
                 document.getElementById('success-screen').style.display = 'block';
-
-                // Store locally as backup
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 localStorage.setItem('webprestige_form_' + Date.now(), JSON.stringify(data));
             }
         }
