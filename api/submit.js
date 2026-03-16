@@ -1,6 +1,6 @@
-// Vercel Serverless Function â Handles questionnaire submissions
+// Vercel Serverless Function — Handles questionnaire submissions
 // 1. Saves to Notion database
-// 2. Sends "site en cours de crÃ©ation" confirmation email via Resend
+// 2. Sends "site en cours de création" confirmation email via Resend
 // 3. Generates prompt & triggers site creation on 3 platforms (Framer, v0, Tempo)
 // 4. Sends WhatsApp notification with 3 preview links (internal only)
 // 5. Updates Notion with email tracking data
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     // ==========================================
     // 2. SEND CONFIRMATION EMAIL VIA RESEND
-    // (Client reÃ§oit : "Merci, votre site est en cours de crÃ©ation")
+    // (Client reçoit : "Merci, votre site est en cours de création")
     // ==========================================
     let emailId = null;
     if (data.email) {
@@ -42,31 +42,34 @@ export default async function handler(req, res) {
     const prompt = generateSitePrompt(data);
     console.log('[WebPrestige] Prompt generated, launching 3 platforms...');
 
-    // Lancer les 3 plateformes en parallÃ¨le (fire-and-forget)
-    // On n'attend pas la fin â le WhatsApp sera envoyÃ© avec les liens de base
     const platformResults = await triggerAllPlatforms(data, prompt);
     console.log('[WebPrestige] Platforms triggered:', platformResults);
 
     // ==========================================
-    // 4. SEND WHATSAPP NOTIFICATION (INTERNAL)
+    // 4. SEND ADMIN EMAIL WITH PREVIEW LINKS
+    // ==========================================
+    await sendAdminEmail(data, platformResults);
+
+    // ==========================================
+    // 5. SEND WHATSAPP NOTIFICATION (INTERNAL)
     // ==========================================
     await sendWhatsApp(
-      `ð *Nouveau questionnaire complÃ©tÃ© !*\n\n` +
-      `ðª *${data.nom_commerce}*\n` +
-      `ð ${data.secteur}\n` +
-      `ð ${data.commune}\n` +
-      `ð ${data.telephone}\n` +
-      `ð§ ${data.email || 'Non renseignÃ©'}\n\n` +
-      `ð¨ *Sites en cours de gÃ©nÃ©ration :*\n` +
-      `1ï¸â£ Framer: ${platformResults.framer || 'â³ En cours...'}\n` +
-      `2ï¸â£ v0: ${platformResults.v0 || 'â³ En cours...'}\n` +
-      `3ï¸â£ Tempo: ${platformResults.tempo || 'â³ En cours...'}\n\n` +
-      `â Email de confirmation envoyÃ© au client\n` +
-      `ð Notion mis Ã  jour`
+      `🚀 *Nouveau questionnaire complété !*\n\n` +
+      `🏪 *${data.nom_commerce}*\n` +
+      `📋 ${data.secteur}\n` +
+      `📍 ${data.commune}\n` +
+      `📞 ${data.telephone}\n` +
+      `📧 ${data.email || 'Non renseigné'}\n\n` +
+      `🎨 *Sites générés — à vérifier :*\n` +
+      `${platformResults.framer ? `1️⃣ Framer: ${platformResults.framer}\n` : ''}` +
+      `${platformResults.v0 ? `2️⃣ v0: ${platformResults.v0}\n` : ''}` +
+      `${platformResults.tempo ? `3️⃣ Tempo: ${platformResults.tempo}\n` : ''}` +
+      `\n📧 Email avec preview links envoyé à l'admin\n` +
+      `✅ Notion mis à jour`
     );
 
     // ==========================================
-    // 5. RETURN SUCCESS RESPONSE
+    // 6. RETURN SUCCESS RESPONSE
     // ==========================================
     return res.status(200).json({
       success: true,
@@ -104,14 +107,14 @@ async function saveToNotion(data) {
         'Secteur': { select: { name: data.secteur || 'Restaurant' } },
         'Commune': { rich_text: [{ text: { content: data.commune || '' } }] },
         'Adresse': { rich_text: [{ text: { content: data.adresse || '' } }] },
-        'TÃ©lÃ©phone': { phone_number: data.telephone || '' },
+        'Téléphone': { phone_number: data.telephone || '' },
         'Email': { email: data.email || null },
         'Note Google': { rich_text: [{ text: { content: data.note_google || '' } }] },
-        'PrioritÃ©': { select: { name: 'CHAUD' } },
-        'Statut': { select: { name: 'Formulaire reÃ§u' } },
+        'Priorité': { select: { name: 'CHAUD' } },
+        'Statut': { select: { name: 'Formulaire reçu' } },
         'Notes': { rich_text: [{ text: { content: buildNotesFromData(data) } }] },
-        'PrÃ©nom gÃ©rant': { rich_text: [{ text: { content: data.prenom_gerant || '' } }] },
-        'Email EnvoyÃ©': { checkbox: !!data.email },
+        'Prénom gérant': { rich_text: [{ text: { content: data.prenom_gerant || '' } }] },
+        'Email Envoyé': { checkbox: !!data.email },
         'Date premier contact': { date: { start: new Date().toISOString().split('T')[0] } }
       }
     })
@@ -132,41 +135,28 @@ function buildNotesFromData(data) {
 
 // ==========================================
 // HELPER: Send Confirmation Email (Resend)
-// Email client = "Votre site est en cours de crÃ©ation"
+// Email client = "Votre site est en cours de création"
 // ==========================================
 async function sendConfirmationEmail(data) {
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fdfaf7; padding: 0;">
-      <!-- Header -->
       <div style="background: linear-gradient(135deg, #C0784A 0%, #A0623A 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
         <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">WebPrestige</h1>
-        <p style="color: #f5e6d8; margin: 8px 0 0; font-size: 14px;">Votre vitrine digitale, clÃ© en main</p>
+        <p style="color: #f5e6d8; margin: 8px 0 0; font-size: 14px;">Votre vitrine digitale, clé en main</p>
       </div>
-
-      <!-- Body -->
       <div style="padding: 40px 30px; background: #ffffff;">
-        <h2 style="color: #2d2d2d; font-size: 22px; margin: 0 0 20px;">
-          Merci ${data.prenom_gerant || ''} ! ð
-        </h2>
-
+        <h2 style="color: #2d2d2d; font-size: 22px; margin: 0 0 20px;">Merci ${data.prenom_gerant || ''} ! 🎉</h2>
         <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-          Nous avons bien reÃ§u vos rÃ©ponses pour <strong style="color: #C0784A;">${data.nom_commerce}</strong>.
+          Nous avons bien reçu vos réponses pour <strong style="color: #C0784A;">${data.nom_commerce}</strong>.
         </p>
-
         <div style="background: linear-gradient(135deg, #fdf8f4 0%, #fef5ee 100%); border-left: 4px solid #C0784A; padding: 20px; border-radius: 0 8px 8px 0; margin: 25px 0;">
-          <p style="color: #333; font-size: 16px; margin: 0; font-weight: 600;">
-            â¨ Votre site est dÃ©jÃ  en cours de crÃ©ation !
-          </p>
+          <p style="color: #333; font-size: 16px; margin: 0; font-weight: 600;">✨ Votre site est déjà en cours de création !</p>
           <p style="color: #666; font-size: 14px; margin: 10px 0 0;">
-            Notre Ã©quipe prÃ©pare plusieurs propositions de design sur-mesure pour votre activitÃ©.
-            Vous recevrez trÃ¨s prochainement un aperÃ§u personnalisÃ©.
+            Notre équipe prépare plusieurs propositions de design sur-mesure pour votre activité.
+            Vous recevrez très prochainement un aperçu personnalisé.
           </p>
         </div>
-
-        <p style="color: #555; font-size: 15px; line-height: 1.6; margin: 20px 0;">
-          En attendant, voici un rÃ©capitulatif de vos prÃ©fÃ©rences :
-        </p>
-
+        <p style="color: #555; font-size: 15px; line-height: 1.6; margin: 20px 0;">En attendant, voici un récapitulatif de vos préférences :</p>
         <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
           <tr>
             <td style="padding: 10px 15px; background: #fdf8f4; color: #888; font-size: 13px; width: 140px;">Commerce</td>
@@ -182,21 +172,16 @@ async function sendConfirmationEmail(data) {
           </tr>
           ${data.style_souhaite ? `
           <tr>
-            <td style="padding: 10px 15px; color: #888; font-size: 13px;">Style souhaitÃ©</td>
+            <td style="padding: 10px 15px; color: #888; font-size: 13px;">Style souhaité</td>
             <td style="padding: 10px 15px; color: #333; font-size: 14px;">${data.style_souhaite}</td>
           </tr>` : ''}
         </table>
-
-        <p style="color: #555; font-size: 15px; line-height: 1.6; margin: 20px 0 5px;">
-          On revient vers vous trÃ¨s vite avec une proposition qui vous ressemble.
-        </p>
+        <p style="color: #555; font-size: 15px; line-height: 1.6; margin: 20px 0 5px;">On revient vers vous très vite avec une proposition qui vous ressemble.</p>
       </div>
-
-      <!-- Footer -->
       <div style="padding: 25px 30px; text-align: center; background: #f8f4f0; border-radius: 0 0 8px 8px;">
         <p style="color: #999; font-size: 12px; margin: 0;">
-          WebPrestige â Sites vitrines pour professionnels<br>
-          RÃ©gion Toulouse | contact@webprestige.fr
+          WebPrestige — Sites vitrines pour professionnels<br>
+          Région Toulouse | contact@webprestige.fr
         </p>
       </div>
     </div>
@@ -211,7 +196,7 @@ async function sendConfirmationEmail(data) {
     body: JSON.stringify({
       from: 'WebPrestige <onboarding@resend.dev>',
       to: [data.email],
-      subject: `â¨ ${data.nom_commerce} â Votre site est en cours de crÃ©ation !`,
+      subject: `✨ ${data.nom_commerce} — Votre site est en cours de création !`,
       html: htmlContent
     })
   });
@@ -236,7 +221,7 @@ async function updateNotionEmailTracking(pageId, emailId) {
     body: JSON.stringify({
       properties: {
         'Resend Email ID': { rich_text: [{ text: { content: emailId } }] },
-        'Email EnvoyÃ©': { checkbox: true },
+        'Email Envoyé': { checkbox: true },
         'Dernier Email': { date: { start: new Date().toISOString() } }
       }
     })
@@ -248,39 +233,39 @@ async function updateNotionEmailTracking(pageId, emailId) {
 // HELPER: Generate Site Vitrine Prompt
 // ==========================================
 function generateSitePrompt(data) {
-  return `CrÃ©e un site vitrine professionnel pour "${data.nom_commerce}", un(e) ${data.secteur} situÃ©(e) Ã  ${data.commune}.
+  return `Crée un site vitrine professionnel pour "${data.nom_commerce}", un(e) ${data.secteur} situé(e) à ${data.commune}.
 
 INFORMATIONS DU COMMERCE :
 - Nom : ${data.nom_commerce}
 - Secteur : ${data.secteur}
 - Localisation : ${data.commune}${data.adresse ? `, ${data.adresse}` : ''}
-- TÃ©lÃ©phone : ${data.telephone || 'Non renseignÃ©'}
+- Téléphone : ${data.telephone || 'Non renseigné'}
 ${data.description ? `- Description : ${data.description}` : ''}
 
 DESIGN :
-- Style souhaitÃ© : ${data.style_souhaite || 'Moderne et professionnel'}
-- Couleurs : ${data.couleurs || 'Couleurs chaudes et accueillantes, adaptÃ©es au secteur'}
+- Style souhaité : ${data.style_souhaite || 'Moderne et professionnel'}
+- Couleurs : ${data.couleurs || 'Couleurs chaudes et accueillantes, adaptées au secteur'}
 - Ambiance : Professionnelle, rassurante, locale
 
-PAGES Ã CRÃER :
-${data.pages_souhaitees || '- Accueil avec hero section et appel Ã  action\n- Ã propos / Notre histoire\n- Services / Prestations\n- Contact avec formulaire et carte Google Maps'}
+PAGES À CRÉER :
+${data.pages_souhaitees || '- Accueil avec hero section et appel à action\n- À propos / Notre histoire\n- Services / Prestations\n- Contact avec formulaire et carte Google Maps'}
 
 EXIGENCES TECHNIQUES :
 - Site vitrine responsive (mobile-first)
-- OptimisÃ© pour le SEO local (${data.commune}, ${data.secteur})
+- Optimisé pour le SEO local (${data.commune}, ${data.secteur})
 - Temps de chargement rapide
 - Bouton d'appel click-to-call visible
-- IntÃ©gration Google Maps pour la localisation
+- Intégration Google Maps pour la localisation
 - Design moderne avec animations subtiles
 - Formulaire de contact fonctionnel
-- Favicon et mÃ©ta descriptions optimisÃ©s
+- Favicon et méta descriptions optimisés
 
 CONTENU :
-- GÃ©nÃ©rer des textes professionnels et engageants adaptÃ©s au secteur ${data.secteur}
-- Inclure des appels Ã  l'action clairs ("Appelez-nous", "Prenez rendez-vous", "Venez nous voir")
-- Mettre en avant la proximitÃ© et l'ancrage local Ã  ${data.commune}
+- Générer des textes professionnels et engageants adaptés au secteur ${data.secteur}
+- Inclure des appels à l'action clairs ("Appelez-nous", "Prenez rendez-vous", "Venez nous voir")
+- Mettre en avant la proximité et l'ancrage local à ${data.commune}
 
-IMPORTANT : Le site doit Ãªtre complet, prÃªt Ã  Ãªtre prÃ©sentÃ© au client, et donner une impression immÃ©diatement professionnelle.`;
+IMPORTANT : Le site doit être complet, prêt à être présenté au client, et donner une impression immédiatement professionnelle.`;
 }
 
 
@@ -290,7 +275,6 @@ IMPORTANT : Le site doit Ãªtre complet, prÃªt Ã  Ãªtre prÃ©sentÃ© au
 async function triggerAllPlatforms(data, prompt) {
   const results = { framer: null, v0: null, tempo: null };
 
-  // Lance les 3 en parallÃ¨le avec un timeout de 30s
   const [framerResult, v0Result, tempoResult] = await Promise.allSettled([
     triggerFramer(data, prompt),
     triggerV0(data, prompt),
@@ -312,7 +296,6 @@ async function triggerAllPlatforms(data, prompt) {
 
 // ==========================================
 // PLATFORM 1: Framer (Server API - Beta)
-// Docs: https://www.framer.com/developers/server-api
 // ==========================================
 async function triggerFramer(data, prompt) {
   if (!process.env.FRAMER_API_TOKEN) {
@@ -346,7 +329,6 @@ async function triggerFramer(data, prompt) {
 
 // ==========================================
 // PLATFORM 2: v0 by Vercel
-// Docs: https://v0.dev/docs/api
 // ==========================================
 async function triggerV0(data, prompt) {
   if (!process.env.V0_API_TOKEN) {
@@ -362,7 +344,7 @@ async function triggerV0(data, prompt) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: `${prompt}\n\nUtilise React, Tailwind CSS et shadcn/ui. Le design doit Ãªtre Ã©purÃ©, moderne, style SaaS/startup.`,
+        prompt: `${prompt}\n\nUtilise React, Tailwind CSS et shadcn/ui. Le design doit être épuré, moderne, style SaaS/startup.`,
         framework: 'nextjs'
       })
     });
@@ -379,7 +361,6 @@ async function triggerV0(data, prompt) {
 
 // ==========================================
 // PLATFORM 3: Tempo Labs
-// Docs: https://docs.tempolabs.ai/api
 // ==========================================
 async function triggerTempo(data, prompt) {
   if (!process.env.TEMPO_API_TOKEN) {
@@ -396,7 +377,7 @@ async function triggerTempo(data, prompt) {
       },
       body: JSON.stringify({
         name: `${data.nom_commerce} - WebPrestige`,
-        prompt: `${prompt}\n\nGÃ©nÃ¨re un PRD structurÃ© puis crÃ©e la UI en React. Le design doit Ãªtre unique et crÃ©atif, avec un style design-first.`,
+        prompt: `${prompt}\n\nGénère un PRD structuré puis crée la UI en React. Le design doit être unique et créatif, avec un style design-first.`,
         framework: 'react'
       })
     });
@@ -406,6 +387,90 @@ async function triggerTempo(data, prompt) {
     return result.url || `https://app.tempolabs.ai/project/${result.id}`;
   } catch (error) {
     console.error('[Tempo] Failed:', error.message);
+    return null;
+  }
+}
+
+
+// ==========================================
+// HELPER: Send Admin Email with Preview Links
+// ==========================================
+async function sendAdminEmail(data, platformResults) {
+  const previewLinksHTML = `
+    <div style="margin: 25px 0; padding: 20px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0;">
+      <h3 style="color: #1e40af; margin: 0 0 15px; font-size: 16px;">🔗 Preview Links — À vérifier :</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        ${platformResults.framer ? `
+        <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #bfdbfe;">
+          <p style="margin: 0 0 8px; font-weight: 600; color: #1e40af; font-size: 13px;">🎨 FRAMER</p>
+          <a href="${platformResults.framer}" style="color: #3b82f6; font-size: 13px; text-decoration: none; word-break: break-all;">${platformResults.framer}</a>
+        </div>
+        ` : '<div style="background: #f9f9f9; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb;"><p style="margin: 0; color: #999; font-size: 13px;">🎨 FRAMER — non disponible</p></div>'}
+        ${platformResults.v0 ? `
+        <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #bfdbfe;">
+          <p style="margin: 0 0 8px; font-weight: 600; color: #1e40af; font-size: 13px;">▲ V0 BY VERCEL</p>
+          <a href="${platformResults.v0}" style="color: #3b82f6; font-size: 13px; text-decoration: none; word-break: break-all;">${platformResults.v0}</a>
+        </div>
+        ` : '<div style="background: #f9f9f9; padding: 12px; border-radius: 6px; border: 1px solid #e5e7eb;"><p style="margin: 0; color: #999; font-size: 13px;">▲ V0 — non disponible</p></div>'}
+      </div>
+    </div>
+  `;
+
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 700px; margin: 0 auto; background: #fdfaf7; padding: 0;">
+      <div style="background: linear-gradient(135deg, #C0784A 0%, #A0623A 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">WebPrestige — Admin Notification</h1>
+        <p style="color: #f5e6d8; margin: 8px 0 0; font-size: 14px;">Nouveau prospect • Sites générés ✅</p>
+      </div>
+      <div style="padding: 40px 30px; background: #ffffff;">
+        <h2 style="color: #2d2d2d; font-size: 22px; margin: 0 0 20px;">🎉 Nouveau Prospect : ${data.nom_commerce}</h2>
+        <div style="background: #fff9f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #333; margin: 0 0 15px; font-size: 14px; font-weight: 600;">📋 Détails du Prospect :</h3>
+          <table style="width: 100%; font-size: 14px;">
+            <tr><td style="padding: 8px 0; color: #666; width: 140px;">Commerce :</td><td style="padding: 8px 0; color: #333; font-weight: 600;">${data.nom_commerce}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Gérant :</td><td style="padding: 8px 0; color: #333;">${data.prenom_gerant || 'N/A'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Email :</td><td style="padding: 8px 0;"><a href="mailto:${data.email}" style="color: #C0784A;">${data.email}</a></td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Téléphone :</td><td style="padding: 8px 0;"><a href="tel:${data.telephone}" style="color: #C0784A;">${data.telephone}</a></td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Secteur :</td><td style="padding: 8px 0; color: #333;">${data.secteur}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Commune :</td><td style="padding: 8px 0; color: #333;">${data.commune}</td></tr>
+            ${data.budget ? `<tr><td style="padding: 8px 0; color: #666;">Budget :</td><td style="padding: 8px 0; color: #333;">${data.budget}</td></tr>` : ''}
+          </table>
+        </div>
+        ${previewLinksHTML}
+        <div style="background: #fff0f5; padding: 16px; border-radius: 6px; margin: 20px 0; font-size: 13px; color: #666;">
+          ✅ Questionnaire enregistré dans Notion<br>
+          ✅ Email de confirmation envoyé au prospect<br>
+          ⏳ Sites en cours de génération sur les plateformes<br>
+          📧 À toi de choisir et proposer au prospect
+        </div>
+      </div>
+      <div style="padding: 25px 30px; text-align: center; background: #f8f4f0; border-radius: 0 0 8px 8px; font-size: 12px; color: #999;">
+        WebPrestige — Pipeline d'automatisation<br>
+        Notification envoyée le ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+      </div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'WebPrestige Admin <onboarding@resend.dev>',
+        to: ['benjamin31.mathias@gmail.com'],
+        subject: `🔥 Nouveau prospect — ${data.nom_commerce} (${data.secteur})`,
+        html: htmlContent
+      })
+    });
+
+    const result = await response.json();
+    console.log('[Admin Email] Sent to benjamin31.mathias@gmail.com:', result.id);
+    return result.id;
+  } catch (error) {
+    console.error('[Admin Email] Failed:', error.message);
     return null;
   }
 }
