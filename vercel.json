@@ -2,6 +2,7 @@
   "version": 2,
   "routes": [
     { "src": "/api/submit", "dest": "/api/submit.js" },
+    { "src": "/api/preview", "dest": "/api/preview.js" },
     { "src": "/api/webhook/resend", "dest": "/api/webhook/resend.js" },
     { "src": "/api/cron/relance", "dest": "/api/cron/relance.js" },
     { "src": "/(.*)", "dest": "/index.html" }
