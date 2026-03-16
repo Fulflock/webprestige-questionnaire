@@ -116,7 +116,7 @@ export default async function handler(req, res) {
 // ==========================================
 // NOTION — Sauvegarde prospect
 // ==========================================
-async function saveToNotion(data) {
+asyToNotion(data) {
   const response = await fetch('https://api.notion.com/v1/pages', {
     method: 'POST',
     headers: {
@@ -134,12 +134,12 @@ async function saveToNotion(data) {
         'Téléphone': { phone_number: data.telephone || '' },
         'Email': { email: data.email || null },
         'Note Google': { rich_text: [{ text: { content: data.note_google || '' } }] },
-        'Priorité': { select: { name: 'CHAUD' } },
-        'Statut': { select: { name: 'Formulaire reçu' } },
+        'Priorité': { select: { name: '🔥 Chaud' } },
+        'Statut': { select: { name: '🆕 Nouveau' } },
         'Notes': { rich_text: [{ text: { content: buildNotesFromData(data) } }] },
         'Prénom gérant': { rich_text: [{ text: { content: data.prenom_gerant || '' } }] },
-        'Email Envoyé': { checkbox: !!data.email },
-        'Date premier contact': { date: { start: new Date().toISOString().split('T')[0] } }
+        'Budget': { rich_text: [{ text: { content: data.budget || '' } }] },
+        'Date contact': { date: { start: new Date().toISOString().split('T')[0] } }
       }
     })
   });
@@ -223,9 +223,8 @@ async function updateNotionEmailTracking(pageId, emailId) {
     },
     body: JSON.stringify({
       properties: {
-        'Resend Email ID': { rich_text: [{ text: { content: emailId } }] },
-        'Email Envoyé': { checkbox: true },
-        'Dernier Email': { date: { start: new Date().toISOString() } }
+        'Statut': { select: { name: '📧 Contacté' } },
+        'Notes': { rich_text: [{ text: { content: `Email confirmation envoyé (Resend: ${emailId})` } }] }
       }
     })
   });
