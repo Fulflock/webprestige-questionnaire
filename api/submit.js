@@ -48,7 +48,19 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // 3. GÉNÉRATION DES SITES EN PARALLÈLE
+    // 3. RÉPONSE IMMÉDIATE (avant génération longue)
+    // Vercel continue d'exécuter après res.json() → no timeout côté client
+    // ==========================================
+    res.status(200).json({
+      success: true,
+      notionId: notionPageId,
+      emailSent: !!emailId,
+      processing: true
+    });
+
+    // ==========================================
+    // 4. GÉNÉRATION DES SITES EN ARRIÈRE-PLAN
+    // (la fonction continue après res.json())
     // ==========================================
     const prompt = generateSitePrompt(data);
     console.log('[WebPrestige] Lancement génération v0 + Claude...');
@@ -68,7 +80,7 @@ export default async function handler(req, res) {
     console.log('[Claude] HTML généré:', claudeHtml ? `${claudeHtml.length} chars` : 'null');
 
     // ==========================================
-    // 4. EMAIL ADMIN AVEC LES 2 SITES
+    // 5. EMAIL ADMIN AVEC LES 2 SITES
     // ==========================================
     try {
       await sendAdminEmail(data, { v0Url, claudeHtml, notionPageId });
@@ -78,7 +90,7 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // 5. WHATSAPP (optionnel)
+    // 6. WHATSAPP (optionnel)
     // ==========================================
     if (process.env.CALLMEBOT_API_KEY) {
       await sendWhatsApp(
@@ -92,20 +104,11 @@ export default async function handler(req, res) {
       ).catch(e => console.error('[WhatsApp] ❌', e.message));
     }
 
-    // ==========================================
-    // 6. RÉPONSE
-    // ==========================================
-    return res.status(200).json({
-      success: true,
-      notionId: notionPageId,
-      emailSent: !!emailId,
-      v0Url,
-      claudeGenerated: !!claudeHtml
-    });
-
   } catch (error) {
     console.error('[WebPrestige] Erreur globale:', error);
-    return res.status(500).json({ success: false, error: error.message });
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
   }
 }
 
@@ -339,7 +342,7 @@ RÈGLES ABSOLUES :
     },
     body: JSON.stringify({
       model: 'claude-3-5-haiku-20241022',
-      max_tokens: 8000,
+      max_tokens: 4000,
       system: systemPrompt,
       messages: [{
         role: 'user',
