@@ -4,7 +4,7 @@
 // 3. Génération de 2 sites en parallèle :
 //    - v0 by Vercel (Platform API → lien de préview cliquable)
 //    - Claude API (HTML complet → pièce jointe email)
-// 4. Email admin à benjamin31.mathias@gmail.com avec les 2 résultats
+// 4. Email admin à benoit31.mathias@gmail.com avec les 2 résultats
 // 5. WhatsApp si CALLMEBOT_API_KEY configuré
 
 export default async function handler(req, res) {
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
     // ==========================================
     try {
       await sendAdminEmail(data, { v0Url, claudeHtml, notionPageId });
-      console.log('[Admin Email] ✅ Envoyé à benjamin31.mathias@gmail.com');
+      console.log('[Admin Email] ✅ Envoyé à benoit31.mathias@gmail.com');
     } catch (e) {
       console.error('[Admin Email] ❌ Erreur:', e.message);
     }
@@ -462,7 +462,7 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, notionPageId }) {
 
   const emailPayload = {
     from: 'WebPrestige Admin <onboarding@resend.dev>',
-    to: ['benjamin31.mathias@gmail.com'],
+    to: ['benoit31.mathias@gmail.com'],
     subject: `🔥 ${data.nom_commerce} (${data.secteur}) — 2 sites prêts à vérifier`,
     html
   };
