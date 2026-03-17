@@ -4,7 +4,7 @@
 // 3. Génération de 2 sites en parallèle :
 //    - v0 by Vercel (Platform API → lien de préview cliquable)
 //    - Claude API (HTML complet → pièce jointe email)
-// 3b. Email admin IMMÉDIAT à benjamin31.mathias@gmail.com (avant génération)
+// 3b. Email admin IMMÉDIAT à benoit31.mathias@gmail.com (avant génération)
 // 4. Génération sites en arrière-plan (v0 + Claude)
 // 5. WhatsApp si CALLMEBOT_API_KEY configuré
 
@@ -51,8 +51,7 @@ export default async function handler(req, res) {
     // ==========================================
     // 3. EMAIL ADMIN IMMÉDIAT (avant génération)
     // Envoyé tout de suite pour éviter le timeout Vercel (10s Hobby)
-    // Resend Free : onboarding@resend.dev → only to account email
-    // TODO: changer vers benoit31.mathias@gmail.com après vérif domaine Resend
+    // Resend : livraison vers benoit31.mathias@gmail.com (compte vérifié)
     // ==========================================
     try {
       await sendAdminEmail(data, { v0Url: null, claudeHtml: null, notionPageId });
@@ -458,7 +457,7 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, notionPageId }) {
 
   const emailPayload = {
     from: 'WebPrestige Admin <onboarding@resend.dev>',
-    to: ['benjamin31.mathias@gmail.com'],
+    to: ['benoit31.mathias@gmail.com'],
     subject: `🔥 ${data.nom_commerce} (${data.secteur}) — 2 sites prêts à vérifier`,
     html
   };
