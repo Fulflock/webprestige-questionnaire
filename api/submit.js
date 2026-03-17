@@ -90,15 +90,7 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // 6. MISE À JOUR DASHBOARD NOTION (fire-and-forget)
-    // ==========================================
-    const statsUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}/api/stats`
-      : 'https://webprestige-questionnaire.vercel.app/api/stats';
-    fetch(statsUrl).catch(e => console.error('[Stats] ❌', e.message));
-
-    // ==========================================
-    // 7. WHATSAPP (optionnel)
+    // 6. WHATSAPP (optionnel)
     // ==========================================
     if (process.env.CALLMEBOT_API_KEY) {
       await sendWhatsApp(
