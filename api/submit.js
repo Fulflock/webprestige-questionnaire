@@ -237,14 +237,14 @@ async function updateNotionEmailTracking(pageId, emailId) {
 // ==========================================
 function generateSitePrompt(data) {
   const secteurTips = {
-    'Restaurant': 'Mets en avant le menu, l'ambiance, la terrasse, les réservations. CTA : "Réserver une table".',
-    'Coiffeur': 'Montre la galerie avant/après, les tarifs, la prise de RDV. CTA : "Prendre rendez-vous".',
-    'Plombier': 'Urgences 24h/24, zone d'intervention, devis gratuit. CTA : "Appeler maintenant".',
-    'Électricien': 'Certifications, types d'interventions, devis rapide. CTA : "Demander un devis".',
-    'Boulangerie': 'Produits phares, horaires, artisanat local. CTA : "Voir nos spécialités".',
-    'Garage': 'Services auto, marques acceptées, prix transparents. CTA : "Prendre rendez-vous".',
-    'Médecin': 'Spécialité, secteur, prise en charge. CTA : "Prendre rendez-vous".',
-    'Avocat': 'Domaines d'expertise, cabinet, premier contact. CTA : "Consulter".',
+    'Restaurant': "Mets en avant le menu, l'ambiance, la terrasse, les réservations. CTA : Réserver une table.",
+    'Coiffeur': "Montre la galerie avant/après, les tarifs, la prise de RDV. CTA : Prendre rendez-vous.",
+    'Plombier': "Urgences 24h/24, zone d'intervention, devis gratuit. CTA : Appeler maintenant.",
+    'Électricien': "Certifications, types d'interventions, devis rapide. CTA : Demander un devis.",
+    'Boulangerie': "Produits phares, horaires, artisanat local. CTA : Voir nos spécialités.",
+    'Garage': "Services auto, marques acceptées, prix transparents. CTA : Prendre rendez-vous.",
+    'Médecin': "Spécialité, secteur, prise en charge. CTA : Prendre rendez-vous.",
+    'Avocat': "Domaines d'expertise, cabinet, premier contact. CTA : Consulter.",
   };
   const tip = secteurTips[data.secteur] || `Mets en avant les services, l'expérience et la localisation. CTA principal bien visible.`;
  
@@ -367,7 +367,7 @@ Génère maintenant le HTML complet.` }]
     .replace(/\n?```$/, '')
     .trim();
   if (!cleaned.includes('<!DOCTYPE') && !cleaned.includes('<html')) {
-    throw new Error('Claude n'a pas retourné du HTML valide');
+    throw new Error("Claude n'a pas retourné du HTML valide");
   }
   return cleaned;
 }
