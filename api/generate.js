@@ -22,21 +22,28 @@ export default async function handler(req, res) {
     const prompt = generateSitePrompt(data);
 
     // ==========================================
-    // 2. GÉNÉRATION EN PARALLÈLE : v0 + Claude
+    // 2. GÉNÉRATION CLAUDE (prioritaire, plus rapide)
+    //    + v0 en parallèle si le temps le permet
     // ==========================================
-    const [v0Result, claudeResult] = await Promise.allSettled([
-      triggerV0(data, prompt),
-      generateWithClaude(data, prompt)
+    let v0Url = null;
+    let claudeHtml = null;
+
+    // Lancer les 2 en parallèle avec un timeout de 50s
+    const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
+
+    const [claudeResult, v0Result] = await Promise.allSettled([
+      Promise.race([generateWithClaude(data, prompt), timeout(45000)]),
+      Promise.race([triggerV0(data, prompt), timeout(45000)])
     ]);
 
-    const v0Url = v0Result.status === 'fulfilled' ? v0Result.value : null;
-    const claudeHtml = claudeResult.status === 'fulfilled' ? claudeResult.value : null;
-
-    if (v0Url) console.log('[v0] OK:', v0Url);
-    else console.error('[v0] Erreur:', v0Result.reason?.message);
+    claudeHtml = claudeResult.status === 'fulfilled' ? claudeResult.value : null;
+    v0Url = v0Result.status === 'fulfilled' ? v0Result.value : null;
 
     if (claudeHtml) console.log('[Claude] OK:', claudeHtml.length, 'chars');
     else console.error('[Claude] Erreur:', claudeResult.reason?.message);
+
+    if (v0Url) console.log('[v0] OK:', v0Url);
+    else console.error('[v0] Erreur:', v0Result.reason?.message);
 
     // ==========================================
     // 3. STOCKER DANS NOTION
