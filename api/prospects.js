@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         'Notion-Version': '2022-06-28'
       },
       body: JSON.stringify({
-        sorts: [{ property: 'Date contact', direction: 'descending' }],
+        sorts: [{ property: 'Date premier contact', direction: 'descending' }],
         page_size: 100
       })
     });
@@ -48,22 +48,25 @@ export default async function handler(req, res) {
         statut: p['Statut']?.select?.name || '',
         priorite: p['Priorité']?.select?.name || '',
         prenom_gerant: p['Prénom gérant']?.rich_text?.[0]?.text?.content || '',
-        budget: p['Budget']?.rich_text?.[0]?.text?.content || '',
         notes: p['Notes']?.rich_text?.[0]?.text?.content || '',
-        date_contact: p['Date contact']?.date?.start || '',
-        lien_demo: p['Lien démo']?.url || '',
+        date_contact: p['Date premier contact']?.date?.start || '',
+        lien_demo: p['Lien démo Lovable']?.url || '',
+        prochaine_action: p['Prochaine action']?.rich_text?.[0]?.text?.content || '',
         notion_url: page.url
       };
     });
 
     const stats = {
       total: prospects.length,
-      nouveau: prospects.filter(p => p.statut?.includes('Nouveau')).length,
-      contacte: prospects.filter(p => p.statut?.includes('Contacté')).length,
-      rdv: prospects.filter(p => p.statut?.includes('RDV')).length,
-      devis: prospects.filter(p => p.statut?.includes('Devis')).length,
-      signe: prospects.filter(p => p.statut?.includes('Signé')).length,
-      perdu: prospects.filter(p => p.statut?.includes('Perdu')).length,
+      identifie: prospects.filter(p => p.statut === 'Identifié').length,
+      contacte: prospects.filter(p => p.statut === 'Contacté').length,
+      formulaire_envoye: prospects.filter(p => p.statut === 'Formulaire envoyé').length,
+      formulaire_recu: prospects.filter(p => p.statut === 'Formulaire reçu').length,
+      demo: prospects.filter(p => p.statut === 'Démo envoyée').length,
+      rdv: prospects.filter(p => p.statut === 'RDV fixé').length,
+      devis: prospects.filter(p => p.statut === 'Devis envoyé').length,
+      signe: prospects.filter(p => p.statut === 'Signé').length,
+      perdu: prospects.filter(p => p.statut === 'Perdu' || p.statut === 'Hors cible').length,
     };
 
     return res.status(200).json({ prospects, stats });

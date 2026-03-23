@@ -85,8 +85,10 @@
   <div class="stats-bar" id="statsBar"></div>
   <div class="filter-bar" id="filterBar">
     <button class="filter-btn active" data-filter="all">Tous</button>
-    <button class="filter-btn" data-filter="nouveau">Nouveaux</button>
+    <button class="filter-btn" data-filter="identifie">Identifi&eacute;s</button>
     <button class="filter-btn" data-filter="contacte">Contact&eacute;s</button>
+    <button class="filter-btn" data-filter="formulaire_recu">Formulaire re&ccedil;u</button>
+    <button class="filter-btn" data-filter="demo">D&eacute;mo</button>
     <button class="filter-btn" data-filter="rdv">RDV</button>
     <button class="filter-btn" data-filter="devis">Devis</button>
     <button class="filter-btn" data-filter="signe">Sign&eacute;s</button>
@@ -107,11 +109,11 @@ async function loadProspects(){document.getElementById('content').innerHTML='<di
 try{const r=await fetch('/api/prospects?key='+encodeURIComponent(adminKey));if(!r.ok)throw new Error();const data=await r.json();renderAll(data)}
 catch(e){document.getElementById('content').innerHTML='<div class="empty-state"><div class="emoji">&#9888;&#65039;</div><p>Erreur de chargement.</p></div>'}}
 function renderAll(data){allProspects=data.prospects;renderStats(data.stats);renderProspects()}
-function renderStats(s){const items=[{k:'all',l:'Total',v:s.total,c:'#fff'},{k:'nouveau',l:'Nouveaux',v:s.nouveau,c:'#60a5fa'},{k:'contacte',l:'Contact\u00e9s',v:s.contacte,c:'#c084fc'},{k:'rdv',l:'RDV',v:s.rdv,c:'#fbbf24'},{k:'devis',l:'Devis',v:s.devis,c:'#fb923c'},{k:'signe',l:'Sign\u00e9s',v:s.signe,c:'#4ade80'},{k:'perdu',l:'Perdus',v:s.perdu,c:'#f87171'}];
+function renderStats(s){const items=[{k:'all',l:'Total',v:s.total,c:'#fff'},{k:'identifie',l:'Identifi\u00e9s',v:s.identifie,c:'#94a3b8'},{k:'contacte',l:'Contact\u00e9s',v:s.contacte,c:'#60a5fa'},{k:'formulaire_recu',l:'Formulaire',v:s.formulaire_recu,c:'#fbbf24'},{k:'demo',l:'D\u00e9mo',v:s.demo,c:'#c084fc'},{k:'rdv',l:'RDV',v:s.rdv,c:'#fb923c'},{k:'devis',l:'Devis',v:s.devis,c:'#f97316'},{k:'signe',l:'Sign\u00e9s',v:s.signe,c:'#4ade80'},{k:'perdu',l:'Perdus',v:s.perdu,c:'#f87171'}];
 document.getElementById('statsBar').innerHTML=items.map(i=>`<div class="stat-card" onclick="setFilter('${i.k}')"><div class="stat-number" style="color:${i.c}">${i.v}</div><div class="stat-label">${i.l}</div></div>`).join('')}
 function setFilter(f){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));renderProspects()}
 document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>setFilter(b.dataset.filter)));
-function renderProspects(){let f=allProspects;if(currentFilter!=='all'){const map={nouveau:'Nouveau',contacte:'Contact',rdv:'RDV',devis:'Devis',signe:'Sign',perdu:'Perdu'};const kw=map[currentFilter]||currentFilter;f=allProspects.filter(p=>p.statut?.includes(kw))}
+function renderProspects(){let f=allProspects;if(currentFilter!=='all'){const map={identifie:'Identifi\u00e9',contacte:'Contact\u00e9',formulaire_recu:'Formulaire re\u00e7u',demo:'D\u00e9mo envoy\u00e9e',rdv:'RDV fix\u00e9',devis:'Devis envoy\u00e9',signe:'Sign\u00e9',perdu:'Perdu'};const kw=map[currentFilter]||currentFilter;f=allProspects.filter(p=>p.statut===kw||(currentFilter==='perdu'&&p.statut==='Hors cible'))}
 if(!f.length){document.getElementById('content').innerHTML='<div class="empty-state"><div class="emoji">&#128237;</div><p>Aucun prospect ici.</p></div>';return}
 document.getElementById('content').innerHTML='<div class="prospects-grid">'+f.map(renderCard).join('')+'</div>'}
 function renderCard(p){const sc=getStatusClass(p.statut);const date=p.date_contact?new Date(p.date_contact).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
@@ -121,7 +123,7 @@ return`<div class="prospect-card"><div class="card-header"><div><div class="card
 <div class="card-info"><span class="label">G\u00e9rant</span><span class="value">${esc(p.prenom_gerant)||'\u2014'}</span><span class="label">Commune</span><span class="value">${esc(p.commune)}</span><span class="label">T\u00e9l</span><span class="value"><a href="tel:${p.telephone}">${esc(p.telephone)}</a></span><span class="label">Email</span><span class="value"><a href="mailto:${p.email}">${esc(p.email)||'\u2014'}</a></span>${p.budget?`<span class="label">Budget</span><span class="value">${esc(p.budget)}</span>`:''}</div>
 <div class="card-sites"><a href="${v0Link||'#'}" target="_blank" class="site-btn v0 ${v0Link?'':'disabled'}">\u25B2 Preview v0</a><a href="${claudeLink||'#'}" target="_blank" class="site-btn claude ${claudeLink?'':'disabled'}">\uD83E\uDD16 Preview Claude</a></div>
 <div class="card-footer"><span>${date}</span><a href="${p.notion_url}" target="_blank">Ouvrir Notion \u2192</a></div></div>`}
-function getStatusClass(s){if(!s)return'';if(s.includes('Nouveau'))return'status-nouveau';if(s.includes('Contact'))return'status-contacte';if(s.includes('RDV'))return'status-rdv';if(s.includes('Devis'))return'status-devis';if(s.includes('Sign'))return'status-signe';if(s.includes('Perdu'))return'status-perdu';return''}
+function getStatusClass(s){if(!s)return'';if(s==='Identifi\u00e9')return'status-nouveau';if(s==='Contact\u00e9'||s==='Formulaire envoy\u00e9')return'status-contacte';if(s==='Formulaire re\u00e7u')return'status-rdv';if(s==='D\u00e9mo envoy\u00e9e')return'status-devis';if(s==='RDV fix\u00e9')return'status-devis';if(s==='Devis envoy\u00e9')return'status-devis';if(s==='Sign\u00e9')return'status-signe';if(s==='Perdu'||s==='Hors cible')return'status-perdu';return''}
 function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
 </script>
 </body>

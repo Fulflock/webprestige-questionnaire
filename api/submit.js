@@ -136,12 +136,11 @@ async function saveToNotion(data) {
         'Téléphone': { phone_number: data.telephone || '' },
         'Email': { email: data.email || null },
         'Note Google': { rich_text: [{ text: { content: data.note_google || '' } }] },
-        'Priorité': { select: { name: '🔥 Chaud' } },
-        'Statut': { select: { name: '🆕 Nouveau' } },
+        'Priorité': { select: { name: 'CHAUD' } },
+        'Statut': { select: { name: 'Formulaire reçu' } },
         'Notes': { rich_text: [{ text: { content: buildNotesFromData(data) } }] },
         'Prénom gérant': { rich_text: [{ text: { content: data.prenom_gerant || '' } }] },
-        'Budget': { rich_text: [{ text: { content: data.budget || '' } }] },
-        'Date contact': { date: { start: new Date().toISOString().split('T')[0] } }
+        'Date premier contact': { date: { start: new Date().toISOString().split('T')[0] } }
       }
     })
   });
@@ -226,8 +225,8 @@ async function updateNotionEmailTracking(pageId, emailId) {
     },
     body: JSON.stringify({
       properties: {
-        'Statut': { select: { name: '📧 Contacté' } },
-        'Notes': { rich_text: [{ text: { content: `Email confirmation envoyé (Resend: ${emailId})` } }] }
+        'Email Envoyé': { checkbox: true },
+        'Resend Email ID': { rich_text: [{ text: { content: emailId || '' } }] }
       }
     })
   });
@@ -398,7 +397,7 @@ async function storeClaudeHtmlInNotion(pageId, html) {
 async function updateNotionWithSiteLinks(pageId, { v0Url, claudePreviewUrl }) {
   const properties = {};
   if (v0Url || claudePreviewUrl) {
-    properties['Lien démo'] = { url: v0Url || claudePreviewUrl || null };
+    properties['Lien démo Lovable'] = { url: v0Url || claudePreviewUrl || null };
   }
   await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: 'PATCH',
