@@ -62,11 +62,31 @@ export default async function handler(req, res) {
     }
  
     // ==========================================
-    // 3. EMAIL ADMIN — avec les vrais résultats v0 + Claude
-    // Resend : livraison vers benoit31.mathias@gmail.com (compte vérifié)
+    // 3. STOCKER LES LIENS DANS NOTION
+    // ==========================================
+    let claudePreviewUrl = null;
+    if (notionPageId) {
+      try {
+        if (claudeHtml) {
+          await storeClaudeHtmlInNotion(notionPageId, claudeHtml);
+          const baseUrl = process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : 'https://webprestige-questionnaire.vercel.app';
+          claudePreviewUrl = `${baseUrl}/api/preview?id=${notionPageId}`;
+          console.log('[Notion] ✅ Claude HTML stocké, preview:', claudePreviewUrl);
+        }
+        await updateNotionWithSiteLinks(notionPageId, { v0Url, claudePreviewUrl });
+        console.log('[Notion] ✅ Liens sites mis à jour');
+      } catch (e) {
+        console.error('[Notion] ❌ Erreur stockage liens:', e.message);
+      }
+    }
+
+    // ==========================================
+    // 4. EMAIL ADMIN — avec les vrais résultats v0 + Claude
     // ==========================================
     try {
-      await sendAdminEmail(data, { v0Url, claudeHtml, notionPageId });
+      await sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notionPageId });
       console.log('[Admin Email] ✅ Envoyé —', v0Url ? 'v0 ✓' : 'v0 ✗', '|', claudeHtml ? 'Claude ✓' : 'Claude ✗');
     } catch (e) {
       console.error('[Admin Email] ❌', e.message);
@@ -354,9 +374,43 @@ Génère maintenant le HTML complet.` }]
 }
  
 // ==========================================
+// NOTION — Stocker le HTML Claude comme blocks enfants
+// ==========================================
+async function storeClaudeHtmlInNotion(pageId, html) {
+  const chunks = [];
+  for (let i = 0; i < html.length; i += 2000) {
+    chunks.push(html.substring(i, i + 2000));
+  }
+  const blocks = [
+    { object: 'block', type: 'heading_2', heading_2: { rich_text: [{ text: { content: 'Site HTML généré par Claude' } }] } },
+    ...chunks.map(chunk => ({ object: 'block', type: 'code', code: { rich_text: [{ text: { content: chunk } }], language: 'html' } }))
+  ];
+  await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${process.env.NOTION_API_TOKEN}`, 'Content-Type': 'application/json', 'Notion-Version': '2022-06-28' },
+    body: JSON.stringify({ children: blocks })
+  });
+}
+
+// ==========================================
+// NOTION — Mettre à jour les liens des sites générés
+// ==========================================
+async function updateNotionWithSiteLinks(pageId, { v0Url, claudePreviewUrl }) {
+  const properties = {};
+  if (v0Url || claudePreviewUrl) {
+    properties['Lien démo'] = { url: v0Url || claudePreviewUrl || null };
+  }
+  await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${process.env.NOTION_API_TOKEN}`, 'Content-Type': 'application/json', 'Notion-Version': '2022-06-28' },
+    body: JSON.stringify({ properties })
+  });
+}
+
+// ==========================================
 // RESEND — Email admin avec v0 URL + HTML Claude en pièce jointe
 // ==========================================
-async function sendAdminEmail(data, { v0Url, claudeHtml, notionPageId }) {
+async function sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notionPageId }) {
   const now = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit'
@@ -373,8 +427,9 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, notionPageId }) {
   const claudeBlock = claudeHtml
     ? `<div style="background:#fff;padding:16px;border-radius:8px;border:2px solid #C0784A;margin-bottom:12px;">
         <p style="margin:0 0 8px;font-weight:700;color:#C0784A;font-size:14px;">🤖 CLAUDE AI — Site HTML complet</p>
-        <p style="color:#555;font-size:13px;margin:0;">✅ Fichier HTML joint à cet email (${Math.round(claudeHtml.length / 1024)} Ko)<br>Ouvre la pièce jointe dans ton navigateur pour voir le site.</p>
-       </div>`
+        <p style="color:#555;font-size:13px;margin:0;">✅ Fichier HTML joint à cet email (${Math.round(claudeHtml.length / 1024)} Ko)</p>
+        ${claudePreviewUrl ? `<a href="${claudePreviewUrl}" style="display:inline-block;margin-top:10px;padding:8px 16px;background:#C0784A;color:#fff;border-radius:5px;text-decoration:none;font-size:13px;font-weight:600;">→ Ouvrir le preview Claude</a>` : ''}
+      </div>`
     : `<div style="background:#f9f9f9;padding:16px;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px;color:#999;font-size:13px;">🤖 Claude — Génération en cours ou échouée</div>`;
  
   const html = `

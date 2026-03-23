@@ -5,7 +5,9 @@
     { "src": "/api/preview", "dest": "/api/preview.js" },
     { "src": "/api/stats", "dest": "/api/stats.js" },
     { "src": "/api/webhook/resend", "dest": "/api/webhook/resend.js" },
+    { "src": "/api/prospects", "dest": "/api/prospects.js" },
     { "src": "/api/cron/relance", "dest": "/api/cron/relance.js" },
+    { "src": "/admin", "dest": "/admin.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
   "crons": [
