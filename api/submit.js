@@ -1,4 +1,4 @@
-/ Vercel Serverless Function — WebPrestige Pipeline
+// Vercel Serverless Function — WebPrestige Pipeline
 // 1. Sauvegarde dans Notion
 // 2. Email de confirmation au prospect (via Resend)
 // 3. Génération de 2 sites en parallèle :
