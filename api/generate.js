@@ -15,9 +15,6 @@ export default async function handler(req, res) {
 
   console.log('[Generate] Démarrage pour', data.nom_commerce, '| Page:', notionPageId);
 
-  // Réponse immédiate — le travail continue après
-  res.status(200).json({ started: true });
-
   try {
     // ==========================================
     // 1. GÉNÉRER LE PROMPT
@@ -83,9 +80,11 @@ export default async function handler(req, res) {
     }
 
     console.log('[Generate] Pipeline terminé pour', data.nom_commerce);
+    return res.status(200).json({ success: true, v0: !!v0Url, claude: !!claudeHtml });
 
   } catch (error) {
     console.error('[Generate] Erreur globale:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
 
