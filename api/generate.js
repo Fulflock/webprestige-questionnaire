@@ -40,10 +40,10 @@ export default async function handler(req, res) {
     v0Url = v0Result.status === 'fulfilled' ? v0Result.value : null;
 
     if (claudeHtml) console.log('[Claude] OK:', claudeHtml.length, 'chars');
-    else console.error('[Claude] Erreur:', claudeResult.reason?.message);
+    else console.error('[Claude] FAIL:', claudeResult.status, claudeResult.reason?.message, claudeResult.reason?.stack?.substring(0, 300));
 
     if (v0Url) console.log('[v0] OK:', v0Url);
-    else console.error('[v0] Erreur:', v0Result.reason?.message);
+    else console.error('[v0] FAIL:', v0Result.status, v0Result.reason?.message, v0Result.reason?.stack?.substring(0, 300));
 
     // ==========================================
     // 3. STOCKER DANS NOTION
@@ -152,10 +152,13 @@ TECHNIQUE :
 // v0 by Vercel — Platform API
 // ==========================================
 async function triggerV0(data, prompt) {
-  if (!process.env.V0_API_TOKEN) {
+  const token = process.env.V0_API_TOKEN;
+  console.log('[v0] Token présent:', !!token, '| Longueur:', token ? token.length : 0);
+  if (!token) {
     console.log('[v0] Pas de token, skip');
     return null;
   }
+  console.log('[v0] Envoi requête API...');
   const response = await fetch('https://api.v0.dev/v1/chats', {
     method: 'POST',
     headers: {
@@ -180,64 +183,50 @@ async function triggerV0(data, prompt) {
 // Claude API — Génère un site HTML complet
 // ==========================================
 async function generateWithClaude(data, prompt) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const key = process.env.ANTHROPIC_API_KEY;
+  console.log('[Claude] Clé API présente:', !!key, '| Longueur:', key ? key.length : 0);
+  if (!key) {
     console.log('[Claude] Pas de clé API, skip');
     return null;
   }
-  const systemPrompt = `Tu es un expert en création de sites web. Tu génères des sites HTML complets, beaux et fonctionnels en une seule réponse.
+  const systemPrompt = `Tu es un expert en création de sites web. Génère un site HTML complet en une seule réponse.
+RÈGLES : Réponds UNIQUEMENT avec le HTML. Tout dans un fichier. CSS dans <style>, JS dans <script>. Google Fonts. Responsive. Textes réalistes en français. PAS de backticks ni markdown.`;
 
-RÈGLES ABSOLUES :
-- Réponds UNIQUEMENT avec le code HTML (commence par <!DOCTYPE html>)
-- Tout doit être dans un seul fichier : CSS dans <style>, JS dans <script>
-- Utilise Google Fonts pour la typographie
-- Design professionnel, moderne, responsive (mobile-first)
-- Textes de contenu réalistes en français (PAS de Lorem Ipsum)
-- Couleurs harmonieuses et adaptées au secteur
-- Animations CSS subtiles
-- PAS de backticks, PAS de markdown, PAS d'explications — uniquement le HTML`;
+  const body = {
+    model: 'claude-3-5-haiku-20241022',
+    max_tokens: 4000,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: `${prompt}
 
+Site HTML complet avec : header sticky, hero section, services avec icônes, à propos, contact avec formulaire + téléphone cliquable (${data.telephone}), footer. Bouton appel fixe sur mobile. Couleurs : ${data.couleurs || 'adaptées au secteur'}. Adresse : ${data.commune}${data.adresse ? ', ' + data.adresse : ''}.` }]
+  };
+
+  console.log('[Claude] Envoi requête API...');
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'x-api-key': key,
       'anthropic-version': '2023-06-01',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 4000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: `${prompt}
-
-INSTRUCTIONS TECHNIQUES :
-- Site complet en HTML/CSS/JS vanilla dans un seul fichier
-- Header sticky avec logo + navigation
-- Section Hero avec titre accrocheur, sous-titre et bouton CTA
-- Section Services/Prestations avec icônes (utilise des emoji ou Font Awesome CDN)
-- Section À propos avec histoire du commerce
-- Section Contact avec formulaire + adresse + téléphone cliquable
-- Footer avec infos légales
-- Bouton "Appel rapide" fixe en bas sur mobile
-- Schema.org JSON-LD pour le SEO local
-- Couleurs : ${data.couleurs || 'adapte au secteur'}
-- Téléphone à intégrer : ${data.telephone}
-- Adresse : ${data.commune}${data.adresse ? ', ' + data.adresse : ''}
-
-Génère maintenant le HTML complet.` }]
-    })
+    body: JSON.stringify(body)
   });
+  console.log('[Claude] Réponse status:', response.status);
   if (!response.ok) {
     const err = await response.text();
+    console.error('[Claude] Erreur API:', err.substring(0, 500));
     throw new Error(`Anthropic API ${response.status}: ${err.substring(0, 200)}`);
   }
   const result = await response.json();
   const htmlContent = result.content?.[0]?.text || '';
+  console.log('[Claude] Contenu reçu:', htmlContent.length, 'chars');
   const cleaned = htmlContent
     .replace(/^```html\n?/i, '')
     .replace(/^```\n?/, '')
     .replace(/\n?```$/, '')
     .trim();
   if (!cleaned.includes('<!DOCTYPE') && !cleaned.includes('<html')) {
+    console.error('[Claude] HTML invalide, début:', cleaned.substring(0, 200));
     throw new Error("Claude n'a pas retourné du HTML valide");
   }
   return cleaned;
