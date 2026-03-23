@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' });
 
   const key = req.query.key;
-  if (key !== (process.env.ADMIN_KEY || 'webprestige2026')) {
+  if (key !== (process.env.ADMIN_KEY || '1125')) {
     return res.status(401).json({ error: 'Clé admin requise' });
   }
 
