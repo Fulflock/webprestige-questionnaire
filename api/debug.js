@@ -17,6 +17,9 @@ export default async function handler(req, res) {
       ANTHROPIC_KEY_PREFIX: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.substring(0, 8) + '...' : 'MISSING',
       V0_KEY_LENGTH: process.env.V0_API_TOKEN ? process.env.V0_API_TOKEN.length : 0,
       V0_KEY_PREFIX: process.env.V0_API_TOKEN ? process.env.V0_API_TOKEN.substring(0, 8) + '...' : 'MISSING',
+      GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
+      GEMINI_KEY_LENGTH: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0,
+      GEMINI_KEY_PREFIX: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 8) + '...' : 'MISSING',
     },
     tests: {}
   };
@@ -66,6 +69,26 @@ export default async function handler(req, res) {
     results.tests.v0 = { status: r.status, ok: r.ok, response: body.substring(0, 200) };
   } catch (e) {
     results.tests.v0 = { error: e.message };
+  }
+
+  // Test Gemini
+  try {
+    const gKey = process.env.GEMINI_API_KEY || '';
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${gKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Dis OK' }] }],
+          generationConfig: { maxOutputTokens: 10 }
+        })
+      }
+    );
+    const body = await r.json();
+    results.tests.gemini = { status: r.status, ok: r.ok, response: r.ok ? 'OK' : JSON.stringify(body).substring(0, 300) };
+  } catch (e) {
+    results.tests.gemini = { error: e.message };
   }
 
   // Test Resend
