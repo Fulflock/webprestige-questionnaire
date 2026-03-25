@@ -8,6 +8,7 @@
     { "src": "/api/webhook/resend", "dest": "/api/webhook/resend.js" },
     { "src": "/api/prospects", "dest": "/api/prospects.js" },
     { "src": "/api/chat", "dest": "/api/chat.js" },
+    { "src": "/api/admin-chat", "dest": "/api/admin-chat.js" },
     { "src": "/api/debug", "dest": "/api/debug.js" },
     { "src": "/api/cron/relance", "dest": "/api/cron/relance.js" },
     { "src": "/admin", "dest": "/admin.html" },
