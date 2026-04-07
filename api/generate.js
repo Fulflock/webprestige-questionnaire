@@ -114,22 +114,33 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // 5. WHATSAPP (optionnel)
+    // 5. LOVABLE PROMPT (toujours généré)
     // ==========================================
-    if (process.env.CALLMEBOT_API_KEY) {
-      await sendWhatsApp(
-        `🔥 *Nouveau prospect WebPrestige !*\n\n` +
-        `🏪 *${data.nom_commerce}* (${data.secteur})\n` +
-        `📍 ${data.commune}\n` +
-        `📞 ${data.telephone}\n\n` +
-        `${v0Url ? `▲ v0: ${v0Url}\n` : ''}` +
-        `${generatedHtml ? `🤖 Claude: site HTML généré\n` : ''}` +
-        `📧 Email admin envoyé`
-      ).catch(e => console.error('[WhatsApp] Erreur:', e.message));
+    const lovablePrompt = generateLovablePrompt(data);
+    const lovableUrl = `https://lovable.dev/projects/create#prompt=${encodeURIComponent(lovablePrompt.substring(0, 500))}`;
+
+    // Store prompt in Notion page
+    try {
+      await storeLovablePromptInNotion(notionPageId, lovablePrompt);
+      console.log('[Lovable] Prompt stocké dans Notion');
+    } catch (e) {
+      console.error('[Lovable] Erreur stockage:', e.message);
     }
 
+    // ==========================================
+    // 6. WHATSAPP avec prompt Lovable
+    // ==========================================
+    await sendWhatsApp(
+      `*Nouveau prospect !*\n\n` +
+      `${data.nom_commerce} (${data.secteur})\n` +
+      `${data.commune} | ${data.telephone}\n\n` +
+      `${v0Url ? `v0: ${v0Url}\n` : ''}` +
+      `${generatedHtml ? `HTML: genere\n` : ''}` +
+      `\nLovable: ouvre lovable.dev et colle le prompt depuis Notion`
+    ).catch(e => console.error('[WhatsApp] Erreur:', e.message));
+
     console.log('[Generate] Pipeline terminé pour', data.nom_commerce);
-    return res.status(200).json({ success: true, v0: !!v0Url, claude: !!generatedHtml });
+    return res.status(200).json({ success: true, v0: !!v0Url, gemini: !!generatedHtml, lovablePrompt: true });
 
   } catch (error) {
     console.error('[Generate] Erreur globale:', error);
@@ -480,6 +491,122 @@ async function sendAdminEmail(data, { v0Url, generatedHtml, claudePreviewUrl, no
 // ==========================================
 // WHATSAPP (optionnel)
 // ==========================================
+// ==========================================
+// LOVABLE — Prompt optimisé
+// ==========================================
+function generateLovablePrompt(data) {
+  const secteurDesigns = {
+    'Restaurant': {
+      style: 'warm dark theme, fond sombre #1a1a1a, accents cuivre #C0784A, ambiance tamisée',
+      sections: 'menu avec catégories (entrées/plats/desserts) et prix, galerie photo ambiance, réservation click-to-call, horaires',
+      cta: 'Réserver une table',
+      images: 'photos de plats gastronomiques, intérieur de restaurant chaleureux, terrasse'
+    },
+    'Pizzeria': {
+      style: 'warm red and cream theme, fond #FFF8F0, accents rouge #D32F2F et vert #388E3C italien',
+      sections: 'carte des pizzas avec prix et ingrédients, formules midi, livraison/emporter, commande par téléphone',
+      cta: 'Commander',
+      images: 'pizzas artisanales, four à bois, ingrédients frais'
+    },
+    'Coiffeur': {
+      style: 'elegant light theme, fond #FAFAF8, accents or #B8860B, typographie Playfair Display',
+      sections: 'tarifs détaillés (coupe femme/homme, coloration, balayage, brushing), galerie avant/après, prise de RDV',
+      cta: 'Prendre rendez-vous',
+      images: 'coiffures élégantes, intérieur de salon moderne, outils de coiffure'
+    },
+    'Boulangerie': {
+      style: 'warm artisan theme, fond crème #FDF8F0, accents brun #8B5E3C, typographie élégante',
+      sections: 'nos pains (4 types avec prix), viennoiseries, pâtisseries, savoir-faire artisanal, horaires 6h30-19h30',
+      cta: 'Découvrir nos produits',
+      images: 'pains dorés, croissants, vitrine de pâtisserie, boulanger au travail'
+    },
+    'Plombier': {
+      style: 'professional trust theme, fond #f8f9fa, accents bleu confiance #1a56db, header sombre',
+      sections: 'services (dépannage, installation, rénovation), zone intervention 20 villes autour, urgence 24h, devis gratuit, certifications RGE',
+      cta: 'Devis gratuit',
+      images: 'artisan au travail, outils professionnels, salle de bain rénovée'
+    },
+    'Artisan / BTP': {
+      style: 'professional trust theme, fond #f8f9fa, accents bleu #1a56db, bannière urgence rouge en haut',
+      sections: 'services avec icônes, réalisations avec photos, zone intervention, devis gratuit, certifications',
+      cta: 'Demander un devis',
+      images: 'chantier propre, avant/après rénovation, équipe au travail'
+    },
+  };
+
+  const design = secteurDesigns[data.secteur] || {
+    style: 'modern clean theme, fond blanc, accents cuivre #C0784A',
+    sections: 'services, à propos, témoignages, contact',
+    cta: 'Nous contacter',
+    images: 'photos professionnelles du commerce'
+  };
+
+  return `Crée un site vitrine professionnel et moderne pour "${data.nom_commerce}", un(e) ${data.secteur} situé(e) à ${data.commune}, France.
+
+DESIGN :
+- ${design.style}
+- Mobile-first responsive
+- Animations subtiles au scroll (fade-in)
+- Header sticky avec navigation
+- Bouton ${design.cta} bien visible dans le header et le hero
+- Bouton click-to-call fixe en bas à droite sur mobile : tel:${data.telephone || '0600000000'}
+
+SECTIONS DU SITE :
+1. HERO plein écran : titre accrocheur "${data.nom_commerce}" + sous-titre "${data.secteur} à ${data.commune}" + bouton CTA "${design.cta}" + image de fond (utilise unsplash ou placeholder)
+2. SERVICES : ${design.sections}
+3. À PROPOS : histoire du commerce, ${data.prenom_gerant ? `géré par ${data.prenom_gerant}, ` : ''}passion et savoir-faire local à ${data.commune}
+4. TÉMOIGNAGES : 3 avis clients réalistes avec prénoms français locaux (ex: Sophie L., Marc D., Claire B.) et 5 étoiles
+5. CONTACT : téléphone cliquable ${data.telephone || '06 00 00 00 00'}, adresse ${data.commune}${data.adresse ? ' ' + data.adresse : ''}, horaires d'ouverture, formulaire simple (nom + tel + message), Google Maps embed placeholder
+6. FOOTER : liens navigation, horaires résumés, mentions légales, "Site créé par WebPrestige"
+
+INFORMATIONS COMMERCE :
+- Nom : ${data.nom_commerce}
+${data.prenom_gerant ? `- Gérant : ${data.prenom_gerant}` : ''}
+- Secteur : ${data.secteur}
+- Ville : ${data.commune}
+${data.adresse ? `- Adresse : ${data.adresse}` : ''}
+- Téléphone : ${data.telephone || 'Non renseigné'}
+${data.description ? `- Description : ${data.description}` : ''}
+- Style souhaité : ${data.style_souhaite || 'Moderne et professionnel'}
+- Couleurs : ${data.couleurs || 'Adaptées au secteur'}
+
+SEO :
+- Title : "${data.nom_commerce} — ${data.secteur} à ${data.commune}"
+- Meta description avec mots-clés locaux
+- Schema.org LocalBusiness JSON-LD
+
+IMPORTANT :
+- Tous les textes en FRANÇAIS
+- Utilise des images placeholder de haute qualité (unsplash)
+- Le site doit donner envie au commerçant de l'acheter immédiatement
+- Design professionnel niveau agence, pas un template basique
+- ${design.images}`;
+}
+
+async function storeLovablePromptInNotion(pageId, prompt) {
+  const chunks = [];
+  for (let i = 0; i < prompt.length; i += 2000) {
+    chunks.push(prompt.substring(i, i + 2000));
+  }
+  const blocks = [
+    { object: 'block', type: 'heading_2', heading_2: { rich_text: [{ text: { content: 'Prompt Lovable — Copier-coller dans lovable.dev' } }] } },
+    ...chunks.map(chunk => ({
+      object: 'block', type: 'code',
+      code: { rich_text: [{ text: { content: chunk } }], language: 'plain text' }
+    }))
+  ];
+  const response = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${process.env.NOTION_API_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28'
+    },
+    body: JSON.stringify({ children: blocks })
+  });
+  if (!response.ok) throw new Error('Notion store failed: ' + response.status);
+}
+
 async function sendWhatsApp(message) {
   const phone = process.env.WHATSAPP_PHONE;
   if (!phone) return;
