@@ -4,7 +4,8 @@
 export const config = { maxDuration: 30 };
 
 export default async function handler(req, res) {
-  if (req.query.key !== '1125') return res.status(401).json({ error: 'Unauthorized' });
+  const adminKey = process.env.ADMIN_KEY;
+  if (!adminKey || req.query.key !== adminKey) return res.status(401).json({ error: 'Unauthorized' });
 
   const results = {
     env: {
@@ -13,13 +14,9 @@ export default async function handler(req, res) {
       RESEND_API_KEY: !!process.env.RESEND_API_KEY,
       V0_API_TOKEN: !!process.env.V0_API_TOKEN,
       ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
-      ANTHROPIC_KEY_LENGTH: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 0,
-      ANTHROPIC_KEY_PREFIX: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.substring(0, 8) + '...' : 'MISSING',
-      V0_KEY_LENGTH: process.env.V0_API_TOKEN ? process.env.V0_API_TOKEN.length : 0,
-      V0_KEY_PREFIX: process.env.V0_API_TOKEN ? process.env.V0_API_TOKEN.substring(0, 8) + '...' : 'MISSING',
       GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
-      GEMINI_KEY_LENGTH: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0,
-      GEMINI_KEY_PREFIX: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 8) + '...' : 'MISSING',
+      INTERNAL_SECRET: !!process.env.INTERNAL_SECRET,
+      ADMIN_EMAIL: !!process.env.ADMIN_EMAIL,
     },
     tests: {}
   };

@@ -66,7 +66,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             properties: {
               "Email Ouvert": { checkbox: true },
-              "PrioritÃ©": { select: { name: "CHAUD" } }
+              "Priorité": { select: { name: "CHAUD" } }
             }
           })
         });
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             properties: {
               "Notes": {
-                rich_text: [{ text: { content: 'â ï¸ Email bounced - adresse invalide' } }]
+                rich_text: [{ text: { content: 'Email bounced - adresse invalide' } }]
               }
             }
           })

@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{NOM_COMMERCE}} - Boulangerie Artisanale {{COMMUNE}}</title>
+    <meta name="description" content="{{NOM_COMMERCE}}, boulangerie artisanale a {{COMMUNE}}. Pains, viennoiseries et patisseries faits maison chaque jour. {{DESCRIPTION}}">
+    <meta name="keywords" content="boulangerie {{COMMUNE}}, patisserie {{COMMUNE}}, pain artisanal, viennoiserie, {{NOM_COMMERCE}}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="#">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Bakery",
+        "name": "{{NOM_COMMERCE}}",
+        "description": "{{DESCRIPTION}}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ADRESSE}}",
+            "addressLocality": "{{COMMUNE}}",
+            "addressCountry": "FR"
+        },
+        "telephone": "{{TELEPHONE}}",
+        "email": "{{EMAIL}}",
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                "opens": "06:30",
+                "closes": "19:30"
+            },
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": "Sunday",
+                "opens": "06:30",
+                "closes": "13:00"
+            }
+        ],
+        "priceRange": "$$",
+        "servesCuisine": "Boulangerie-Patisserie",
+        "image": "",
+        "url": ""
+    }
+    </script>
+
+    <style>
+        :root {
+            --couleur-primaire: {{COULEUR_PRIMAIRE}};
+            --couleur-secondaire: {{COULEUR_SECONDAIRE}};
+            --bg-cream: #FDF8F0;
+            --bg-warm: #F5EDE0;
+            --text-dark: #2C1810;
+            --text-medium: #5C4033;
+            --text-light: #8B7355;
+            --white: #FFFFFF;
+            --shadow-soft: 0 2px 16px rgba(44, 24, 16, 0.08);
+            --shadow-hover: 0 8px 32px rgba(44, 24, 16, 0.12);
+            --radius: 12px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ===================== HEADER ===================== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(253, 248, 240, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(139, 94, 60, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .header.scrolled {
+            box-shadow: var(--shadow-soft);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--couleur-primaire);
+            text-decoration: none;
+        }
+
+        .header-logo span {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-light);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav {
+            display: none;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: var(--text-medium);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--couleur-primaire);
+        }
+
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: var(--couleur-primaire);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 94, 60, 0.3);
+        }
+
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .menu-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-dark);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-cream);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu a {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: color 0.3s;
+        }
+
+        .mobile-menu a:hover {
+            color: var(--couleur-primaire);
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        /* ===================== HERO ===================== */
+        .hero {
+            padding: 140px 20px 80px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--bg-cream) 0%, var(--bg-warm) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 2px;
+            background: var(--couleur-primaire);
+            opacity: 0.3;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(139, 94, 60, 0.08);
+            border: 1px solid rgba(139, 94, 60, 0.15);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--couleur-primaire);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 em {
+            color: var(--couleur-primaire);
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-medium);
+            max-width: 560px;
+            margin: 0 auto 36px;
+            line-height: 1.7;
+        }
+
+        .hero-ctas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: transparent;
+            color: var(--couleur-primaire);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid var(--couleur-primaire);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--couleur-primaire);
+            color: var(--white);
+        }
+
+        .hero-grain {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0C13.4 0 0 13.4 0 30s13.4 30 30 30 30-13.4 30-30S46.6 0 30 0zm0 52C17.8 52 8 42.2 8 30S17.8 8 30 8s22 9.8 22 22-9.8 22-22 22z' fill='%238B5E3C' fill-opacity='0.03'/%3E%3C/svg%3E") repeat;
+        }
+
+        /* ===================== SECTIONS COMMON ===================== */
+        .section {
+            padding: 80px 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-header .overline {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--couleur-primaire);
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 1rem;
+            color: var(--text-light);
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        /* ===================== PRODUCTS ===================== */
+        .products {
+            background: var(--white);
+        }
+
+        .product-category {
+            margin-bottom: 56px;
+        }
+
+        .product-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .product-category h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--bg-warm);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-category h3 .icon {
+            font-size: 1.6rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .product-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            background: var(--bg-cream);
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .product-info h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .product-info p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .product-price {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--couleur-primaire);
+            white-space: nowrap;
+            margin-left: 16px;
+        }
+
+        /* ===================== SAVOIR-FAIRE ===================== */
+        .savoir-faire {
+            background: var(--bg-warm);
+        }
+
+        .savoir-faire-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .savoir-faire-content .story {
+            font-size: 1.1rem;
+            color: var(--text-medium);
+            line-height: 1.8;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .savoir-faire-content .story em {
+            color: var(--couleur-primaire);
+            font-style: italic;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .value-card {
+            text-align: center;
+            padding: 32px 24px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .value-card .icon {
+            font-size: 2.4rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .value-card h4 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .value-card p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ===================== REVIEWS ===================== */
+        .reviews {
+            background: var(--white);
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .review-card {
+            padding: 32px;
+            background: var(--bg-cream);
+            border-radius: var(--radius-lg);
+            position: relative;
+        }
+
+        .review-card::before {
+            content: '\201C';
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            color: var(--couleur-primaire);
+            opacity: 0.2;
+            position: absolute;
+            top: 12px;
+            left: 24px;
+            line-height: 1;
+        }
+
+        .review-stars {
+            color: #E8A838;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .review-text {
+            font-size: 0.95rem;
+            color: var(--text-medium);
+            line-height: 1.7;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .review-author {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .review-author span {
+            font-weight: 400;
+            color: var(--text-light);
+        }
+
+        /* ===================== HORAIRES & CONTACT ===================== */
+        .contact {
+            background: var(--bg-warm);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .horaires-card, .contact-card {
+            padding: 36px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .horaires-card h3, .contact-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .horaires-table {
+            width: 100%;
+        }
+
+        .horaires-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(139, 94, 60, 0.08);
+        }
+
+        .horaires-row:last-child {
+            border-bottom: none;
+        }
+
+        .horaires-row .day {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .horaires-row .hours {
+            color: var(--text-medium);
+        }
+
+        .horaires-row.closed .hours {
+            color: var(--couleur-primaire);
+            font-weight: 500;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .contact-item .icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .contact-item .label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .contact-item a, .contact-item .value {
+            font-size: 1rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-item a:hover {
+            color: var(--couleur-primaire);
+        }
+
+        /* ===================== FOOTER ===================== */
+        .footer {
+            background: var(--text-dark);
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .footer p {
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .footer .credit {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            opacity: 0.5;
+        }
+
+        .footer .credit a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+        }
+
+        /* ===================== MOBILE CALL BUTTON ===================== */
+        .mobile-call {
+            display: flex;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: var(--couleur-primaire);
+            color: var(--white);
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(139, 94, 60, 0.4);
+            z-index: 900;
+            transition: transform 0.3s;
+        }
+
+        .mobile-call:hover {
+            transform: scale(1.1);
+        }
+
+        /* ===================== ANIMATIONS ===================== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===================== RESPONSIVE ===================== */
+        @media (min-width: 640px) {
+            .product-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                padding: 160px 20px 100px;
+            }
+
+            .section {
+                padding: 100px 20px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .mobile-call {
+                display: none;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <a href="#" class="header-logo">
+                {{NOM_COMMERCE}}
+                <span>Boulangerie artisanale</span>
+            </a>
+            <ul class="nav">
+                <li><a href="#produits">Nos produits</a></li>
+                <li><a href="#savoir-faire">Savoir-faire</a></li>
+                <li><a href="#avis">Avis</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <a href="tel:{{TELEPHONE}}" class="btn-cta header-cta">Commander</a>
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Ouvrir le menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" onclick="toggleMenu()" aria-label="Fermer le menu">&times;</button>
+        <a href="#produits" onclick="toggleMenu()">Nos produits</a>
+        <a href="#savoir-faire" onclick="toggleMenu()">Savoir-faire</a>
+        <a href="#avis" onclick="toggleMenu()">Avis</a>
+        <a href="#contact" onclick="toggleMenu()">Contact</a>
+        <a href="tel:{{TELEPHONE}}" class="btn-cta" onclick="toggleMenu()">Commander</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">Fait maison, chaque jour</div>
+            <h1 class="fade-in">Boulangerie artisanale<br>a <em>{{COMMUNE}}</em></h1>
+            <p class="fade-in">Du pain croustillant au levain, des viennoiseries dorees et des patisseries faites avec passion. Chaque matin, {{PRENOM_GERANT}} et son equipe preparent le meilleur pour vous.</p>
+            <div class="hero-ctas fade-in">
+                <a href="tel:{{TELEPHONE}}" class="btn-cta">Commander</a>
+                <a href="#produits" class="btn-secondary">Decouvrir nos produits</a>
+            </div>
+        </div>
+        <div class="hero-grain"></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="section products" id="produits">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="overline">Nos produits</span>
+                <h2>Faits maison, avec amour</h2>
+                <p>Chaque produit est prepare sur place avec des ingredients soigneusement selectionnes.</p>
+            </div>
+
+            <!-- Pains -->
+            <div class="product-category fade-in">
+                <h3><span class="icon">&#127838;</span> Nos pains</h3>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Tradition francaise</h4>
+                            <p>Farine de tradition, levain naturel</p>
+                        </div>
+                        <div class="product-price">1,30 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Pain de campagne</h4>
+                            <p>Farine de meule, croute epaisse</p>
+                        </div>
+                        <div class="product-price">3,80 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Pain complet</h4>
+                            <p>Farine complete bio, riche en fibres</p>
+                        </div>
+                        <div class="product-price">3,50 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Pain aux cereales</h4>
+                            <p>Graines de lin, tournesol, sesame</p>
+                        </div>
+                        <div class="product-price">4,20 &euro;</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Viennoiseries -->
+            <div class="product-category fade-in">
+                <h3><span class="icon">&#129360;</span> Viennoiseries</h3>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Croissant pur beurre</h4>
+                            <p>Beurre AOP Charentes-Poitou</p>
+                        </div>
+                        <div class="product-price">1,30 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Pain au chocolat</h4>
+                            <p>Deux barres de chocolat noir</p>
+                        </div>
+                        <div class="product-price">1,40 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Chausson aux pommes</h4>
+                            <p>Compote maison, pate feuilletee</p>
+                        </div>
+                        <div class="product-price">1,80 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Pain aux raisins</h4>
+                            <p>Creme patissiere, raisins secs</p>
+                        </div>
+                        <div class="product-price">1,60 &euro;</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patisseries -->
+            <div class="product-category fade-in">
+                <h3><span class="icon">&#127856;</span> Patisseries</h3>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Tarte aux fruits</h4>
+                            <p>Fruits de saison, creme patissiere</p>
+                        </div>
+                        <div class="product-price">4,50 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Eclair au chocolat</h4>
+                            <p>Chocolat grand cru, pate a choux</p>
+                        </div>
+                        <div class="product-price">3,80 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Flan patissier</h4>
+                            <p>Recette traditionnelle, vanille de Madagascar</p>
+                        </div>
+                        <div class="product-price">3,20 &euro;</div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-info">
+                            <h4>Paris-Brest</h4>
+                            <p>Creme pralinee, amandes effilees</p>
+                        </div>
+                        <div class="product-price">5,50 &euro;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SAVOIR-FAIRE -->
+    <section class="section savoir-faire" id="savoir-faire">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="overline">Notre savoir-faire</span>
+                <h2>La tradition du bon pain</h2>
+            </div>
+            <div class="savoir-faire-content">
+                <p class="story fade-in">
+                    Chez <em>{{NOM_COMMERCE}}</em>, {{PRENOM_GERANT}} perpetue un savoir-faire artisanal transmis de generation en generation. Chaque matin des 4 heures, la pate est petrie, faconnee et cuite dans le respect des traditions boulangeres. Pas de surgelation, pas d'additifs : ici, tout est fait maison avec des farines francaises soigneusement selectionnees et un levain naturel entretenu avec soin.
+                </p>
+                <div class="values-grid">
+                    <div class="value-card fade-in">
+                        <span class="icon">&#127806;</span>
+                        <h4>Ingredients nobles</h4>
+                        <p>Farines francaises, beurre AOP, oeufs frais, levain naturel. Le meilleur pour nos clients.</p>
+                    </div>
+                    <div class="value-card fade-in">
+                        <span class="icon">&#9201;</span>
+                        <h4>Fabrication quotidienne</h4>
+                        <p>Chaque produit est prepare le jour meme. Fraicheur et qualite garanties du matin au soir.</p>
+                    </div>
+                    <div class="value-card fade-in">
+                        <span class="icon">&#10084;&#65039;</span>
+                        <h4>Passion artisanale</h4>
+                        <p>Un metier de passion transmis avec fierte, au service du gout et de la tradition.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="section reviews" id="avis">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="overline">Avis clients</span>
+                <h2>Ce qu'ils disent de nous</h2>
+                <p>La satisfaction de nos clients est notre plus belle recompense.</p>
+            </div>
+            <div class="reviews-grid">
+                <div class="review-card fade-in">
+                    <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="review-text">Le meilleur pain de {{COMMUNE}} sans hesitation ! La tradition est incroyable, croustillante a l'exterieur et moelleuse a l'interieur. Je ne vais plus ailleurs.</p>
+                    <div class="review-author">Marie-Claire D. <span>- Cliente fidele</span></div>
+                </div>
+                <div class="review-card fade-in">
+                    <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="review-text">Les croissants sont une tuerie ! On sent le vrai beurre. Et l'accueil est toujours chaleureux. Une boulangerie comme on les aime, authentique et genereuse.</p>
+                    <div class="review-author">Jean-Pierre M. <span>- Habitue du quartier</span></div>
+                </div>
+                <div class="review-card fade-in">
+                    <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="review-text">Leurs patisseries sont un vrai delice. Le flan est le meilleur que j'ai goute et la tarte aux fruits est magnifique. Je recommande les yeux fermes !</p>
+                    <div class="review-author">Sophie L. <span>- Via Google Avis</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HORAIRES & CONTACT -->
+    <section class="section contact" id="contact">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="overline">Pratique</span>
+                <h2>Horaires &amp; Contact</h2>
+                <p>Retrouvez-nous chaque jour pour votre pain frais et vos gourmandises.</p>
+            </div>
+            <div class="contact-grid">
+                <div class="horaires-card fade-in">
+                    <h3><span class="icon">&#128336;</span> Horaires d'ouverture</h3>
+                    <div class="horaires-table">
+                        <div class="horaires-row closed">
+                            <span class="day">Lundi</span>
+                            <span class="hours">Ferme</span>
+                        </div>
+                        <div class="horaires-row">
+                            <span class="day">Mardi</span>
+                            <span class="hours">6h30 - 19h30</span>
+                        </div>
+                        <div class="horaires-row">
+                            <span class="day">Mercredi</span>
+                            <span class="hours">6h30 - 19h30</span>
+                        </div>
+                        <div class="horaires-row">
+                            <span class="day">Jeudi</span>
+                            <span class="hours">6h30 - 19h30</span>
+                        </div>
+                        <div class="horaires-row">
+                            <span class="day">Vendredi</span>
+                            <span class="hours">6h30 - 19h30</span>
+                        </div>
+                        <div class="horaires-row">
+                            <span class="day">Samedi</span>
+                            <span class="hours">6h30 - 19h30</span>
+                        </div>
+                        <div class="horaires-row">
+                            <span class="day">Dimanche</span>
+                            <span class="hours">6h30 - 13h00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-card fade-in">
+                    <h3><span class="icon">&#128205;</span> Nous retrouver</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="icon">&#127968;</span>
+                            <div>
+                                <div class="label">Adresse</div>
+                                <div class="value">{{ADRESSE}}, {{COMMUNE}}</div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">&#128222;</span>
+                            <div>
+                                <div class="label">Telephone</div>
+                                <a href="tel:{{TELEPHONE}}">{{TELEPHONE}}</a>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">&#9993;</span>
+                            <div>
+                                <div class="label">Email</div>
+                                <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 28px;">
+                        <a href="tel:{{TELEPHONE}}" class="btn-cta" style="width: 100%; justify-content: center;">Nous appeler</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-logo">{{NOM_COMMERCE}}</div>
+            <p>Boulangerie artisanale - {{ADRESSE}}, {{COMMUNE}}</p>
+            <p class="credit">Site realise par <a href="#">WebPrestige</a></p>
+        </div>
+    </footer>
+
+    <!-- MOBILE CALL BUTTON -->
+    <a href="tel:{{TELEPHONE}}" class="mobile-call" aria-label="Appeler {{NOM_COMMERCE}}">&#128222;</a>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            document.getElementById('mobileMenu').classList.toggle('active');
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            var header = document.getElementById('header');
+            if (window.scrollY > 40) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Fade-in on scroll
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.fade-in').forEach(function(el) {
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+</html>

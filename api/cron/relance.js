@@ -5,11 +5,9 @@
 export default async function handler(req, res) {
   // Verify cron secret (Vercel cron jobs send this header)
   const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    // Also allow direct calls for testing
-    if (req.method !== 'GET' && req.method !== 'POST') {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const NOTION_TOKEN = process.env.NOTION_API_TOKEN;
@@ -23,7 +21,6 @@ export default async function handler(req, res) {
 
   try {
     // Query Notion for prospects needing follow-up
-    // Criteria: Statut = "Formulaire reÃ§u", Email EnvoyÃ© = true, Email Ouvert = false
     const queryResponse = await fetch(`https://api.notion.com/v1/databases/${DATABASE_ID}/query`, {
       method: 'POST',
       headers: {
@@ -34,9 +31,9 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         filter: {
           and: [
-            { property: 'Email EnvoyÃ©', checkbox: { equals: true } },
+            { property: 'Email Envoyé', checkbox: { equals: true } },
             { property: 'Email Ouvert', checkbox: { equals: false } },
-            { property: 'Statut', select: { equals: 'Formulaire reÃ§u' } }
+            { property: 'Statut', select: { equals: 'Formulaire reçu' } }
           ]
         }
       })
@@ -63,35 +60,29 @@ export default async function handler(req, res) {
       const email = props['Email']?.email;
       const secteur = props['Secteur']?.select?.name || '';
 
-      // Skip if already 3+ relances
       if (nbRelances >= 3) {
         results.push({ commerce, status: 'max_relances_reached' });
         continue;
       }
 
-      // Skip if no email
       if (!email) {
         results.push({ commerce, status: 'no_email' });
         continue;
       }
 
-      // Check created date - only relance if page is older than 3 days
       const createdDate = new Date(page.created_time);
       const daysSinceCreation = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
 
-      // Wait at least 3 days between relances
-      const minDays = 3 + (nbRelances * 2); // 3 days, then 5, then 7
+      const minDays = 3 + (nbRelances * 2);
       if (daysSinceCreation < minDays) {
         results.push({ commerce, status: 'too_soon', days: Math.round(daysSinceCreation) });
         continue;
       }
 
-      // Send follow-up email
       const relanceNum = nbRelances + 1;
       const emailSent = await sendRelanceEmail(email, commerce, secteur, relanceNum, RESEND_KEY, FROM_EMAIL);
 
       if (emailSent) {
-        // Update Notion
         await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
           method: 'PATCH',
           headers: {
@@ -104,7 +95,7 @@ export default async function handler(req, res) {
               "Nb Relances": { number: relanceNum },
               "Resend Email ID": { rich_text: [{ text: { content: emailSent } }] },
               "Prochaine action": {
-                rich_text: [{ text: { content: relanceNum >= 3 ? 'Relance max atteinte - appeler' : `Relance ${relanceNum}/3 envoyÃ©e` } }]
+                rich_text: [{ text: { content: relanceNum >= 3 ? 'Relance max atteinte - appeler' : `Relance ${relanceNum}/3 envoyée` } }]
               }
             }
           })
@@ -118,7 +109,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Send WhatsApp summary if any relances were sent
     if (relancesSent > 0) {
       await sendWhatsAppSummary(relancesSent, results);
     }
@@ -137,32 +127,32 @@ export default async function handler(req, res) {
 
 async function sendRelanceEmail(to, commerce, secteur, relanceNum, apiKey, fromEmail) {
   const subjects = {
-    1: `${commerce} â On a commencÃ© Ã  travailler sur votre site ! ð`,
-    2: `${commerce} â Votre maquette est presque prÃªte ð¨`,
-    3: `${commerce} â DerniÃ¨re chance de profiter de notre offre ð`
+    1: `${commerce} — On a commencé à travailler sur votre site !`,
+    2: `${commerce} — Votre maquette est presque prête`,
+    3: `${commerce} — Dernière chance de profiter de notre offre`
   };
 
   const bodies = {
     1: `
       <p>Bonjour,</p>
-      <p>Suite Ã  votre demande pour <strong>${commerce}</strong>, nous avons commencÃ© Ã  prÃ©parer votre projet de site web.</p>
-      <p>Nous avons quelques idÃ©es passionnantes pour votre ${secteur} et aimerions vous les prÃ©senter !</p>
-      <p><strong>Vous avez 5 minutes pour un rapide Ã©change ?</strong> RÃ©pondez simplement Ã  cet email ou appelez-nous.</p>
-      <p>Ã trÃ¨s bientÃ´t,<br><strong>L'Ã©quipe WebPrestige</strong></p>`,
+      <p>Suite à votre demande pour <strong>${commerce}</strong>, nous avons commencé à préparer votre projet de site web.</p>
+      <p>Nous avons quelques idées passionnantes pour votre ${secteur} et aimerions vous les présenter !</p>
+      <p><strong>Vous avez 5 minutes pour un rapide échange ?</strong> Répondez simplement à cet email ou appelez-nous.</p>
+      <p>À très bientôt,<br><strong>L'équipe WebPrestige</strong></p>`,
     2: `
       <p>Bonjour,</p>
       <p>Bonne nouvelle ! La maquette de votre futur site pour <strong>${commerce}</strong> avance bien.</p>
       <p>Nous aimerions vous la montrer et recueillir vos retours avant de finaliser.</p>
-      <p><strong>Un petit crÃ©neau de 10 minutes cette semaine ?</strong></p>
-      <p>N'hÃ©sitez pas Ã  rÃ©pondre Ã  cet email, on s'adapte Ã  vos disponibilitÃ©s.</p>
-      <p>Cordialement,<br><strong>L'Ã©quipe WebPrestige</strong></p>`,
+      <p><strong>Un petit créneau de 10 minutes cette semaine ?</strong></p>
+      <p>N'hésitez pas à répondre à cet email, on s'adapte à vos disponibilités.</p>
+      <p>Cordialement,<br><strong>L'équipe WebPrestige</strong></p>`,
     3: `
       <p>Bonjour,</p>
       <p>C'est notre dernier message concernant votre projet de site web pour <strong>${commerce}</strong>.</p>
-      <p>Votre maquette est <strong>prÃªte Ã  Ãªtre prÃ©sentÃ©e</strong> et nous serions ravis de vous la montrer.</p>
-      <p>Si vous Ãªtes toujours intÃ©ressÃ©, rÃ©pondez Ã  cet email. Sinon, pas de souci, nous comprenons que ce n'est peut-Ãªtre pas le bon moment.</p>
-      <p>Nous vous souhaitons le meilleur pour votre activitÃ© ! ð</p>
-      <p>Bien Ã  vous,<br><strong>L'Ã©quipe WebPrestige</strong></p>`
+      <p>Votre maquette est <strong>prête à être présentée</strong> et nous serions ravis de vous la montrer.</p>
+      <p>Si vous êtes toujours intéressé, répondez à cet email. Sinon, pas de souci, nous comprenons que ce n'est peut-être pas le bon moment.</p>
+      <p>Nous vous souhaitons le meilleur pour votre activité !</p>
+      <p>Bien à vous,<br><strong>L'équipe WebPrestige</strong></p>`
   };
 
   const htmlContent = `
@@ -178,7 +168,7 @@ async function sendRelanceEmail(to, commerce, secteur, relanceNum, apiKey, fromE
       ${bodies[relanceNum] || bodies[1]}
     </div>
     <div style="background: #F8F6F3; padding: 16px 32px; text-align: center; border-top: 1px solid #EDE8E3;">
-      <p style="color: #AAB7B8; font-size: 11px; margin: 0;">WebPrestige â Sites web pour commerces de proximitÃ©</p>
+      <p style="color: #AAB7B8; font-size: 11px; margin: 0;">WebPrestige — Sites web pour commerces de proximité</p>
     </div>
   </div>
 </body>
@@ -224,7 +214,7 @@ async function sendWhatsAppSummary(count, results) {
   const sent = results.filter(r => r.status === 'relance_sent');
   const details = sent.map(r => `- ${r.commerce} (relance #${r.relance})`).join('\n');
 
-  const message = `ð¬ *Relances automatiques*\n\n${count} email(s) envoyÃ©(s) :\n${details}`;
+  const message = `Relances automatiques\n\n${count} email(s) envoyes :\n${details}`;
   const url = `https://api.callmebot.com/whatsapp.php?phone=${PHONE}&text=${encodeURIComponent(message)}&apikey=${API_KEY}`;
 
   try {

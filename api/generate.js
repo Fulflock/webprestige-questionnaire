@@ -1,9 +1,25 @@
 // Vercel Serverless Function — WebPrestige Pipeline (Étape 2)
-// Génération des sites v0 + Claude + email admin
+// Template-based generation + Gemini AI + v0 + QA auto
 // Appelé par submit.js en fire-and-forget
 // Timeout : 60s max (Vercel Hobby)
 
+import { validateSite, autoFix } from './qa.js';
+
 export const config = { maxDuration: 60 };
+
+// Template mapping by sector
+const TEMPLATE_MAP = {
+  'Restaurant': 'restaurant',
+  'Pizzeria': 'restaurant',
+  'Kebab / Snack': 'restaurant',
+  'Coiffeur': 'coiffeur',
+  'Coiffure / Beauté': 'coiffeur',
+  'Boulangerie': 'boulangerie',
+  'Plombier': 'artisan',
+  'Électricien': 'artisan',
+  'Artisan / BTP': 'artisan',
+  'Garage / Auto': 'artisan',
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -13,47 +29,73 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'notionPageId et data requis' });
   }
 
+  // Auth: only accept calls from submit.js with internal secret
+  const internalSecret = process.env.INTERNAL_SECRET || 'wp-internal-2026';
+  if (req.headers['x-internal-secret'] !== internalSecret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   console.log('[Generate] Démarrage pour', data.nom_commerce, '| Page:', notionPageId);
 
   try {
     // ==========================================
-    // 1. GÉNÉRER LE PROMPT
+    // 1. GÉNÉRER LE PROMPT (avec template si dispo)
     // ==========================================
     const prompt = generateSitePrompt(data);
+    const sectorTemplate = TEMPLATE_MAP[data.secteur] || 'commerce';
 
     // ==========================================
     // 2. GÉNÉRATION CLAUDE (prioritaire, plus rapide)
     //    + v0 en parallèle si le temps le permet
     // ==========================================
     let v0Url = null;
-    let claudeHtml = null;
+    let generatedHtml = null;
 
     // Lancer les 2 en parallèle avec un timeout de 50s
     const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
 
-    const [claudeResult, v0Result] = await Promise.allSettled([
-      Promise.race([generateWithClaude(data, prompt), timeout(45000)]),
-      Promise.race([triggerV0(data, prompt), timeout(45000)])
+    // Gemini (gratuit, prioritaire) + v0 en parallèle
+    const [geminiResult, v0Result] = await Promise.allSettled([
+      Promise.race([generateWithGemini(data, prompt), timeout(35000)]),
+      Promise.race([triggerV0(data, prompt), timeout(35000)])
     ]);
 
-    claudeHtml = claudeResult.status === 'fulfilled' ? claudeResult.value : null;
+    generatedHtml = geminiResult.status === 'fulfilled' ? geminiResult.value : null;
     v0Url = v0Result.status === 'fulfilled' ? v0Result.value : null;
 
-    if (claudeHtml) console.log('[Claude] OK:', claudeHtml.length, 'chars');
-    else console.error('[Claude] FAIL:', claudeResult.status, claudeResult.reason?.message, claudeResult.reason?.stack?.substring(0, 300));
+    if (generatedHtml) console.log('[Gemini] OK:', generatedHtml.length, 'chars');
+    else console.error('[Gemini] FAIL:', geminiResult.status, geminiResult.reason?.message);
 
     if (v0Url) console.log('[v0] OK:', v0Url);
-    else console.error('[v0] FAIL:', v0Result.status, v0Result.reason?.message, v0Result.reason?.stack?.substring(0, 300));
+    else console.error('[v0] FAIL:', v0Result.status, v0Result.reason?.message);
+
+    // ==========================================
+    // 2.5 QA VALIDATION + AUTO-FIX
+    // ==========================================
+    if (generatedHtml) {
+      const qa = validateSite(generatedHtml, data);
+      console.log(`[QA] Score: ${qa.score}/100 | ${qa.issues.length} issues`);
+
+      if (qa.score < 70) {
+        console.log('[QA] Score too low, applying auto-fix...');
+        generatedHtml = autoFix(generatedHtml, data);
+        const qaFixed = validateSite(generatedHtml, data);
+        console.log(`[QA] After fix: ${qaFixed.score}/100`);
+      } else if (qa.issues.length > 0) {
+        // Apply minor fixes even if score is OK
+        generatedHtml = autoFix(generatedHtml, data);
+      }
+    }
 
     // ==========================================
     // 3. STOCKER DANS NOTION
     // ==========================================
     let claudePreviewUrl = null;
     try {
-      if (claudeHtml) {
-        await storeClaudeHtmlInNotion(notionPageId, claudeHtml);
+      if (generatedHtml) {
+        await storeClaudeHtmlInNotion(notionPageId, generatedHtml);
         claudePreviewUrl = `https://webprestige-questionnaire.vercel.app/api/preview?id=${notionPageId}`;
-        console.log('[Notion] Claude HTML stocké, preview:', claudePreviewUrl);
+        console.log('[Notion] HTML stocké, preview:', claudePreviewUrl);
       }
       await updateNotionWithSiteLinks(notionPageId, { v0Url, claudePreviewUrl });
       console.log('[Notion] Liens mis à jour');
@@ -65,8 +107,8 @@ export default async function handler(req, res) {
     // 4. EMAIL ADMIN
     // ==========================================
     try {
-      await sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notionPageId });
-      console.log('[Admin Email] OK —', v0Url ? 'v0 OK' : 'v0 FAIL', '|', claudeHtml ? 'Claude OK' : 'Claude FAIL');
+      await sendAdminEmail(data, { v0Url, generatedHtml, claudePreviewUrl, notionPageId });
+      console.log('[Admin Email] OK —', v0Url ? 'v0 OK' : 'v0 FAIL', '|', generatedHtml ? 'Claude OK' : 'Claude FAIL');
     } catch (e) {
       console.error('[Admin Email] Erreur:', e.message);
     }
@@ -81,13 +123,13 @@ export default async function handler(req, res) {
         `📍 ${data.commune}\n` +
         `📞 ${data.telephone}\n\n` +
         `${v0Url ? `▲ v0: ${v0Url}\n` : ''}` +
-        `${claudeHtml ? `🤖 Claude: site HTML généré\n` : ''}` +
+        `${generatedHtml ? `🤖 Claude: site HTML généré\n` : ''}` +
         `📧 Email admin envoyé`
       ).catch(e => console.error('[WhatsApp] Erreur:', e.message));
     }
 
     console.log('[Generate] Pipeline terminé pour', data.nom_commerce);
-    return res.status(200).json({ success: true, v0: !!v0Url, claude: !!claudeHtml });
+    return res.status(200).json({ success: true, v0: !!v0Url, claude: !!generatedHtml });
 
   } catch (error) {
     console.error('[Generate] Erreur globale:', error);
@@ -180,11 +222,88 @@ async function triggerV0(data, prompt) {
 
 
 // ==========================================
-// Claude API — Génère un site HTML complet
+// Gemini 2.0 Flash — Génère un site HTML complet (GRATUIT)
+// ==========================================
+async function generateWithGemini(data, prompt) {
+  const key = process.env.GEMINI_API_KEY;
+  console.log('[Gemini] Clé API présente:', !!key);
+  if (!key) {
+    console.log('[Gemini] Pas de clé API, fallback Claude');
+    return generateWithClaude(data, prompt);
+  }
+
+  const systemInstruction = `Tu es un expert en création de sites web vitrines pour des commerces locaux français.
+Tu génères des sites de qualité agence, design 2025, qui donnent envie au commerçant de signer immédiatement.
+Le template de référence pour ce secteur est "${TEMPLATE_MAP[data.secteur] || 'commerce'}". Inspire-toi de sa structure.
+RÈGLES STRICTES :
+- Réponds UNIQUEMENT avec le code HTML complet. Rien d'autre.
+- Tout dans un seul fichier : CSS dans <style>, JS dans <script>
+- Google Fonts (Inter ou Poppins)
+- Mobile-first responsive
+- Textes réalistes et professionnels en français
+- PAS de backticks, PAS de markdown, PAS d'explication
+- Design moderne, épuré, style 2025
+- Animations CSS subtiles (fade-in, hover effects)
+- SEO local optimisé (meta title, description, schema.org LocalBusiness)
+- Bouton click-to-call fixe sur mobile
+- Icônes via Unicode ou SVG inline (pas de CDN externe sauf Google Fonts)`;
+
+  const userPrompt = `${prompt}
+
+STRUCTURE DU SITE :
+1. Header sticky avec logo texte + navigation + bouton CTA
+2. Hero section plein écran avec titre accrocheur + sous-titre + CTA
+3. Section services/prestations avec icônes et descriptions
+4. Section à propos avec histoire du commerce
+5. Section témoignages (3 avis fictifs réalistes avec prénoms locaux)
+6. Section contact : formulaire + téléphone cliquable (${data.telephone}) + adresse + Google Maps embed
+7. Footer avec horaires, liens, mentions légales
+
+DESIGN : ${data.couleurs || 'Palette moderne adaptée au secteur, tons chauds'}
+STYLE : ${data.style_souhaite || 'Moderne et professionnel'}
+ADRESSE : ${data.commune}${data.adresse ? ', ' + data.adresse : ''}`;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemInstruction }] },
+        contents: [{ parts: [{ text: userPrompt }] }],
+        generationConfig: { maxOutputTokens: 16384, temperature: 0.7 }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.text();
+    console.error('[Gemini] Erreur API:', err.substring(0, 500));
+    throw new Error(`Gemini API ${response.status}: ${err.substring(0, 200)}`);
+  }
+
+  const result = await response.json();
+  const text = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  console.log('[Gemini] Contenu reçu:', text.length, 'chars');
+
+  const cleaned = text
+    .replace(/^```html\n?/i, '')
+    .replace(/^```\n?/, '')
+    .replace(/\n?```$/g, '')
+    .trim();
+
+  if (!cleaned.includes('<!DOCTYPE') && !cleaned.includes('<html')) {
+    console.error('[Gemini] HTML invalide, début:', cleaned.substring(0, 200));
+    throw new Error("Gemini n'a pas retourné du HTML valide");
+  }
+  return cleaned;
+}
+
+// ==========================================
+// Claude API — Fallback si Gemini échoue
 // ==========================================
 async function generateWithClaude(data, prompt) {
   const key = process.env.ANTHROPIC_API_KEY;
-  console.log('[Claude] Clé API présente:', !!key, '| Longueur:', key ? key.length : 0);
   if (!key) {
     console.log('[Claude] Pas de clé API, skip');
     return null;
@@ -196,37 +315,22 @@ RÈGLES : Réponds UNIQUEMENT avec le HTML. Tout dans un fichier. CSS dans <styl
     model: 'claude-3-5-haiku-20241022',
     max_tokens: 4000,
     system: systemPrompt,
-    messages: [{ role: 'user', content: `${prompt}
-
-Site HTML complet avec : header sticky, hero section, services avec icônes, à propos, contact avec formulaire + téléphone cliquable (${data.telephone}), footer. Bouton appel fixe sur mobile. Couleurs : ${data.couleurs || 'adaptées au secteur'}. Adresse : ${data.commune}${data.adresse ? ', ' + data.adresse : ''}.` }]
+    messages: [{ role: 'user', content: `${prompt}\n\nSite HTML complet avec : header sticky, hero section, services avec icônes, à propos, contact avec formulaire + téléphone cliquable (${data.telephone}), footer. Bouton appel fixe sur mobile. Couleurs : ${data.couleurs || 'adaptées au secteur'}. Adresse : ${data.commune}${data.adresse ? ', ' + data.adresse : ''}.` }]
   };
 
-  console.log('[Claude] Envoi requête API...');
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'Content-Type': 'application/json'
-    },
+    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
-  console.log('[Claude] Réponse status:', response.status);
   if (!response.ok) {
     const err = await response.text();
-    console.error('[Claude] Erreur API:', err.substring(0, 500));
     throw new Error(`Anthropic API ${response.status}: ${err.substring(0, 200)}`);
   }
   const result = await response.json();
-  const htmlContent = result.content?.[0]?.text || '';
-  console.log('[Claude] Contenu reçu:', htmlContent.length, 'chars');
-  const cleaned = htmlContent
-    .replace(/^```html\n?/i, '')
-    .replace(/^```\n?/, '')
-    .replace(/\n?```$/, '')
-    .trim();
+  const cleaned = (result.content?.[0]?.text || '')
+    .replace(/^```html\n?/i, '').replace(/^```\n?/, '').replace(/\n?```$/, '').trim();
   if (!cleaned.includes('<!DOCTYPE') && !cleaned.includes('<html')) {
-    console.error('[Claude] HTML invalide, début:', cleaned.substring(0, 200));
     throw new Error("Claude n'a pas retourné du HTML valide");
   }
   return cleaned;
@@ -242,7 +346,7 @@ async function storeClaudeHtmlInNotion(pageId, html) {
     chunks.push(html.substring(i, i + 2000));
   }
   const blocks = [
-    { object: 'block', type: 'heading_2', heading_2: { rich_text: [{ text: { content: 'Site HTML généré par Claude' } }] } },
+    { object: 'block', type: 'heading_2', heading_2: { rich_text: [{ text: { content: 'Site HTML généré par IA' } }] } },
     ...chunks.map(chunk => ({ object: 'block', type: 'code', code: { rich_text: [{ text: { content: chunk } }], language: 'html' } }))
   ];
   await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
@@ -275,7 +379,22 @@ async function updateNotionWithSiteLinks(pageId, { v0Url, claudePreviewUrl }) {
 // ==========================================
 // RESEND — Email admin
 // ==========================================
-async function sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notionPageId }) {
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function sendAdminEmail(data, { v0Url, generatedHtml, claudePreviewUrl, notionPageId }) {
+  const s = { // sanitized data
+    nom: esc(data.nom_commerce),
+    gerant: esc(data.prenom_gerant),
+    email: esc(data.email),
+    tel: esc(data.telephone),
+    secteur: esc(data.secteur),
+    commune: esc(data.commune),
+    budget: esc(data.budget),
+    style: esc(data.style_souhaite),
+  };
   const now = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit'
@@ -289,10 +408,10 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notio
        </div>`
     : `<div style="background:#f9f9f9;padding:16px;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px;color:#999;font-size:13px;">▲ V0 — Non disponible</div>`;
 
-  const claudeBlock = claudeHtml
+  const claudeBlock = generatedHtml
     ? `<div style="background:#fff;padding:16px;border-radius:8px;border:2px solid #C0784A;margin-bottom:12px;">
         <p style="margin:0 0 8px;font-weight:700;color:#C0784A;font-size:14px;">🤖 CLAUDE AI — Site HTML complet</p>
-        <p style="color:#555;font-size:13px;margin:0;">✅ ${Math.round(claudeHtml.length / 1024)} Ko</p>
+        <p style="color:#555;font-size:13px;margin:0;">✅ ${Math.round(generatedHtml.length / 1024)} Ko</p>
         ${claudePreviewUrl ? `<a href="${claudePreviewUrl}" style="display:inline-block;margin-top:10px;padding:8px 16px;background:#C0784A;color:#fff;border-radius:5px;text-decoration:none;font-size:13px;font-weight:600;">→ Ouvrir le preview Claude</a>` : ''}
       </div>`
     : `<div style="background:#f9f9f9;padding:16px;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px;color:#999;font-size:13px;">🤖 Claude — Non disponible</div>`;
@@ -304,17 +423,17 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notio
         <p style="color:#a0aec0;margin:8px 0 0;font-size:14px;">Nouveau prospect • Sites générés</p>
       </div>
       <div style="padding:30px;background:#fff;">
-        <h2 style="color:#2d2d2d;font-size:20px;margin:0 0 20px;">🎯 ${data.nom_commerce}</h2>
+        <h2 style="color:#2d2d2d;font-size:20px;margin:0 0 20px;">${s.nom}</h2>
         <div style="background:#fffbf5;padding:20px;border-radius:8px;border-left:4px solid #C0784A;margin-bottom:25px;">
           <table style="width:100%;font-size:14px;">
-            <tr><td style="padding:6px 0;color:#888;width:130px;">Commerce</td><td style="color:#333;font-weight:600;">${data.nom_commerce}</td></tr>
-            <tr><td style="padding:6px 0;color:#888;">Gérant</td><td style="color:#333;">${data.prenom_gerant || 'N/A'}</td></tr>
-            <tr><td style="padding:6px 0;color:#888;">Email</td><td><a href="mailto:${data.email}" style="color:#C0784A;">${data.email || 'N/A'}</a></td></tr>
-            <tr><td style="padding:6px 0;color:#888;">Téléphone</td><td><a href="tel:${data.telephone}" style="color:#C0784A;font-weight:600;">${data.telephone}</a></td></tr>
-            <tr><td style="padding:6px 0;color:#888;">Secteur</td><td style="color:#333;">${data.secteur}</td></tr>
-            <tr><td style="padding:6px 0;color:#888;">Commune</td><td style="color:#333;">${data.commune}</td></tr>
-            ${data.budget ? `<tr><td style="padding:6px 0;color:#888;">Budget</td><td style="color:#333;font-weight:600;">${data.budget}</td></tr>` : ''}
-            ${data.style_souhaite ? `<tr><td style="padding:6px 0;color:#888;">Style</td><td style="color:#333;">${data.style_souhaite}</td></tr>` : ''}
+            <tr><td style="padding:6px 0;color:#888;width:130px;">Commerce</td><td style="color:#333;font-weight:600;">${s.nom}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;">Gérant</td><td style="color:#333;">${s.gerant || 'N/A'}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;">Email</td><td><a href="mailto:${s.email}" style="color:#C0784A;">${s.email || 'N/A'}</a></td></tr>
+            <tr><td style="padding:6px 0;color:#888;">Téléphone</td><td><a href="tel:${s.tel}" style="color:#C0784A;font-weight:600;">${s.tel}</a></td></tr>
+            <tr><td style="padding:6px 0;color:#888;">Secteur</td><td style="color:#333;">${s.secteur}</td></tr>
+            <tr><td style="padding:6px 0;color:#888;">Commune</td><td style="color:#333;">${s.commune}</td></tr>
+            ${s.budget ? `<tr><td style="padding:6px 0;color:#888;">Budget</td><td style="color:#333;font-weight:600;">${s.budget}</td></tr>` : ''}
+            ${s.style ? `<tr><td style="padding:6px 0;color:#888;">Style</td><td style="color:#333;">${s.style}</td></tr>` : ''}
           </table>
         </div>
         <h3 style="color:#2d2d2d;font-size:16px;margin:0 0 15px;">🎨 Sites générés :</h3>
@@ -334,15 +453,15 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notio
   const emailPayload = {
     from: 'WebPrestige Admin <onboarding@resend.dev>',
     to: ['benoit31.mathias@gmail.com'],
-    subject: `🔥 ${data.nom_commerce} (${data.secteur}) — Sites prêts`,
+    subject: `${s.nom} (${s.secteur}) — Sites prets`,
     html
   };
 
-  if (claudeHtml) {
+  if (generatedHtml) {
     const filename = `${(data.nom_commerce || 'site').replace(/[^a-zA-Z0-9]/g, '-')}-claude.html`;
     emailPayload.attachments = [{
       filename,
-      content: Buffer.from(claudeHtml).toString('base64'),
+      content: Buffer.from(generatedHtml).toString('base64'),
       content_type: 'text/html'
     }];
   }
@@ -362,7 +481,8 @@ async function sendAdminEmail(data, { v0Url, claudeHtml, claudePreviewUrl, notio
 // WHATSAPP (optionnel)
 // ==========================================
 async function sendWhatsApp(message) {
-  const phone = process.env.WHATSAPP_PHONE || '33627941715';
+  const phone = process.env.WHATSAPP_PHONE;
+  if (!phone) return;
   const apiKey = process.env.CALLMEBOT_API_KEY;
   if (!apiKey) return;
   const encodedMsg = encodeURIComponent(message);

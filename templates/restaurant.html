@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{NOM_COMMERCE}} - Restaurant {{COMMUNE}} | Cuisine authentique</title>
+    <meta name="description" content="{{NOM_COMMERCE}}, restaurant a {{COMMUNE}}. {{DESCRIPTION}} Reservez votre table au {{TELEPHONE}}.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="{{NOM_COMMERCE}} - Restaurant {{COMMUNE}}">
+    <meta property="og:description" content="{{DESCRIPTION}}">
+    <meta property="og:type" content="restaurant">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": ["LocalBusiness", "Restaurant"],
+        "name": "{{NOM_COMMERCE}}",
+        "description": "{{DESCRIPTION}}",
+        "telephone": "{{TELEPHONE}}",
+        "email": "{{EMAIL}}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ADRESSE}}",
+            "addressLocality": "{{COMMUNE}}",
+            "addressCountry": "FR"
+        },
+        "servesCuisine": "Cuisine francaise",
+        "priceRange": "$$",
+        "openingHours": ["Mo-Sa 12:00-14:00", "Mo-Sa 19:00-22:30"],
+        "acceptsReservations": true
+    }
+    </script>
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: {{COULEUR_PRIMAIRE}};
+            --primary-fallback: #C0784A;
+            --secondary: {{COULEUR_SECONDAIRE}};
+            --secondary-fallback: #8B5E3C;
+            --bg: #1a1a1a;
+            --bg-card: #232323;
+            --bg-card-hover: #2a2a2a;
+            --text: #f0ebe4;
+            --text-muted: #a09888;
+            --border: rgba(192, 120, 74, 0.15);
+            --border-hover: rgba(192, 120, 74, 0.35);
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0 24px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(26, 26, 26, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .header-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .header-logo span {
+            color: var(--primary, var(--primary-fallback));
+        }
+
+        .header-nav {
+            display: none;
+            list-style: none;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .header-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            transition: color 0.25s;
+        }
+
+        .header-nav a:hover {
+            color: var(--primary, var(--primary-fallback));
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.25s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary, var(--primary-fallback));
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(192, 120, 74, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 24px rgba(192, 120, 74, 0.45);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary, var(--primary-fallback));
+            border: 1.5px solid var(--primary, var(--primary-fallback));
+        }
+
+        .btn-outline:hover {
+            background: var(--primary, var(--primary-fallback));
+            color: #fff;
+        }
+
+        .header-cta {
+            padding: 8px 20px;
+            font-size: 0.8rem;
+        }
+
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .menu-toggle span {
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 72px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 26, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 999;
+            padding: 40px 24px;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mobile-nav a {
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 500;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            transition: color 0.2s, padding-left 0.2s;
+        }
+
+        .mobile-nav a:hover {
+            color: var(--primary, var(--primary-fallback));
+            padding-left: 8px;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg,
+                    rgba(26,26,26,0.4) 0%,
+                    rgba(26,26,26,0.2) 40%,
+                    rgba(26,26,26,0.7) 100%
+                ),
+                linear-gradient(135deg,
+                    #2c1810 0%,
+                    #3d2217 20%,
+                    #4a2a1a 40%,
+                    #3d2217 60%,
+                    #2c1810 80%,
+                    #1a1008 100%
+                );
+            z-index: 0;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(192,120,74,0.08) 0%, transparent 60%);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border: 1px solid var(--border-hover);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--primary, var(--primary-fallback));
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 520px;
+            margin: 0 auto 36px;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* ========== SECTIONS COMMON ========== */
+        section {
+            padding: 100px 24px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--primary, var(--primary-fallback));
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 560px;
+            line-height: 1.8;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-header .section-subtitle {
+            margin: 0 auto;
+        }
+
+        /* ========== MENU / CARTE ========== */
+        .menu-section {
+            background: var(--bg);
+        }
+
+        .menu-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 48px;
+            flex-wrap: wrap;
+        }
+
+        .menu-tab {
+            padding: 10px 24px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .menu-tab.active,
+        .menu-tab:hover {
+            background: var(--primary, var(--primary-fallback));
+            color: #fff;
+            border-color: var(--primary, var(--primary-fallback));
+        }
+
+        .menu-category {
+            display: none;
+        }
+
+        .menu-category.active {
+            display: block;
+        }
+
+        .menu-grid {
+            display: grid;
+            gap: 1px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item-info h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .menu-item-info p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .menu-item-price {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--primary, var(--primary-fallback));
+            white-space: nowrap;
+            padding-top: 2px;
+        }
+
+        /* ========== ABOUT ========== */
+        .about-section {
+            background: linear-gradient(180deg, var(--bg) 0%, #1f1d1a 100%);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        .about-image {
+            aspect-ratio: 4/3;
+            border-radius: var(--radius);
+            background:
+                linear-gradient(135deg, #2c1810, #4a2a1a, #3d2217);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .about-image-placeholder {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .about-text .section-subtitle {
+            margin-bottom: 24px;
+        }
+
+        .about-signature {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .about-signature-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        .about-signature-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ========== TESTIMONIALS ========== */
+        .testimonials-section {
+            background: #1f1d1a;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .testimonial-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .testimonial-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .testimonial-stars {
+            color: var(--primary, var(--primary-fallback));
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+        }
+
+        .testimonial-text {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testimonial-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary, var(--primary-fallback)), var(--secondary, var(--secondary-fallback)));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #fff;
+        }
+
+        .testimonial-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .testimonial-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ========== INFO ========== */
+        .info-section {
+            background: var(--bg);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 48px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px;
+        }
+
+        .info-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .hours-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .hours-row:last-child {
+            border-bottom: none;
+        }
+
+        .hours-day {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .hours-time {
+            color: var(--text-muted);
+        }
+
+        .hours-closed {
+            color: #a05040;
+            font-style: italic;
+        }
+
+        .info-address {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .info-address strong {
+            color: var(--text);
+        }
+
+        .info-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-contact-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-contact-item a {
+            color: var(--primary, var(--primary-fallback));
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .info-contact-item a:hover {
+            opacity: 0.8;
+        }
+
+        .map-embed {
+            width: 100%;
+            height: 250px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: #2a2520;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .map-embed iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-placeholder {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: #111;
+            border-top: 1px solid var(--border);
+            padding: 60px 24px 100px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .footer-brand span {
+            color: var(--primary, var(--primary-fallback));
+        }
+
+        .footer-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        .footer h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary, var(--primary-fallback));
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 12px;
+        }
+
+        .footer-social {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: border-color 0.25s, color 0.25s, background 0.25s;
+        }
+
+        .footer-social:hover {
+            border-color: var(--primary, var(--primary-fallback));
+            color: var(--primary, var(--primary-fallback));
+            background: rgba(192, 120, 74, 0.08);
+        }
+
+        .footer-bottom {
+            max-width: 1100px;
+            margin: 40px auto 0;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .footer-bottom a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-bottom a:hover {
+            color: var(--text);
+        }
+
+        /* ========== MOBILE CTA FIXED ========== */
+        .mobile-cta {
+            display: flex;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 900;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary, var(--primary-fallback));
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(192, 120, 74, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1.3rem;
+        }
+
+        .mobile-cta:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 28px rgba(192, 120, 74, 0.55);
+        }
+
+        /* ========== ANIMATIONS ========== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (min-width: 768px) {
+            .header-nav {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 64px;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 2fr 1fr 1fr;
+            }
+
+            .footer {
+                padding-bottom: 60px;
+            }
+
+            .mobile-cta {
+                display: none;
+            }
+
+            .map-embed {
+                height: 300px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            section {
+                padding: 120px 48px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="#" class="header-logo"><span>{{NOM_COMMERCE}}</span></a>
+        <nav>
+            <ul class="header-nav">
+                <li><a href="#carte">La Carte</a></li>
+                <li><a href="#histoire">Notre Histoire</a></li>
+                <li><a href="#avis">Avis</a></li>
+                <li><a href="#infos">Infos Pratiques</a></li>
+                <li><a href="tel:{{TELEPHONE}}" class="btn btn-primary header-cta">Reserver</a></li>
+            </ul>
+        </nav>
+        <button class="menu-toggle" aria-label="Menu" onclick="toggleMobileNav()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#carte" onclick="closeMobileNav()">La Carte</a>
+        <a href="#histoire" onclick="closeMobileNav()">Notre Histoire</a>
+        <a href="#avis" onclick="closeMobileNav()">Avis</a>
+        <a href="#infos" onclick="closeMobileNav()">Infos Pratiques</a>
+        <a href="tel:{{TELEPHONE}}" onclick="closeMobileNav()" style="color: var(--primary, #C0784A); border: none; margin-top: 16px;">Reserver par telephone</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content fade-in">
+            <div class="hero-badge">Restaurant {{COMMUNE}}</div>
+            <h1>{{NOM_COMMERCE}}</h1>
+            <p>{{DESCRIPTION}}</p>
+            <div class="hero-buttons">
+                <a href="tel:{{TELEPHONE}}" class="btn btn-primary">Reserver une table</a>
+                <a href="#carte" class="btn btn-outline">Decouvrir la carte</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CARTE / MENU -->
+    <section class="menu-section" id="carte">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Notre Carte</span>
+                <h2 class="section-title">Des saveurs qui racontent une histoire</h2>
+                <p class="section-subtitle">Des produits frais et de saison, travailles avec passion par notre equipe en cuisine.</p>
+            </div>
+
+            <div class="menu-tabs fade-in">
+                <button class="menu-tab active" onclick="showCategory('entrees', event)">Entrees</button>
+                <button class="menu-tab" onclick="showCategory('plats', event)">Plats</button>
+                <button class="menu-tab" onclick="showCategory('desserts', event)">Desserts</button>
+            </div>
+
+            <!-- Entrees -->
+            <div class="menu-category active" id="cat-entrees">
+                <div class="menu-grid fade-in">
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Veloute de butternut roti</h3>
+                            <p>Creme de butternut, eclats de noisettes torrefiees, huile de truffe et croutons maison</p>
+                        </div>
+                        <div class="menu-item-price">12 &#8364;</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Tartare de saumon</h3>
+                            <p>Saumon Label Rouge, avocat, mangue, citron vert, graines de sesame et ciboulette</p>
+                        </div>
+                        <div class="menu-item-price">14 &#8364;</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Burrata cremeuse</h3>
+                            <p>Burrata des Pouilles, tomates anciennes confites, pesto de basilic, roquette et pignons</p>
+                        </div>
+                        <div class="menu-item-price">13 &#8364;</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plats -->
+            <div class="menu-category" id="cat-plats">
+                <div class="menu-grid fade-in">
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Filet de boeuf Angus</h3>
+                            <p>Filet de boeuf poele, gratin dauphinois, jus au poivre de Sichuan et legumes du marche</p>
+                        </div>
+                        <div class="menu-item-price">28 &#8364;</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Dos de cabillaud roti</h3>
+                            <p>Cabillaud de ligne, risotto aux champignons, emulsion au beurre blanc et herbes fraiches</p>
+                        </div>
+                        <div class="menu-item-price">24 &#8364;</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Magret de canard laque</h3>
+                            <p>Magret du Sud-Ouest, puree de patate douce, reduction au miel et vinaigre de framboise</p>
+                        </div>
+                        <div class="menu-item-price">26 &#8364;</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desserts -->
+            <div class="menu-category" id="cat-desserts">
+                <div class="menu-grid fade-in">
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Fondant au chocolat noir</h3>
+                            <p>Chocolat grand cru Valrhona 70%, coeur coulant, glace vanille de Madagascar</p>
+                        </div>
+                        <div class="menu-item-price">11 &#8364;</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Tarte au citron meringuee</h3>
+                            <p>Pate sablee, creme de citron de Menton, meringue italienne torchee et zestes confits</p>
+                        </div>
+                        <div class="menu-item-price">10 &#8364;</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-info">
+                            <h3>Creme brulee a la vanille</h3>
+                            <p>Creme onctueuse infusee a la gousse de vanille Bourbon, caramelisee minute</p>
+                        </div>
+                        <div class="menu-item-price">9 &#8364;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT / HISTOIRE -->
+    <section class="about-section" id="histoire">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image fade-in">
+                    <span class="about-image-placeholder">Photo du restaurant</span>
+                </div>
+                <div class="about-text fade-in">
+                    <span class="section-label">Notre Histoire</span>
+                    <h2 class="section-title">Une passion transmise avec le coeur</h2>
+                    <p class="section-subtitle">
+                        Depuis l'ouverture de {{NOM_COMMERCE}}, notre philosophie n'a jamais change : proposer une cuisine genereuse, elaboree a partir de produits locaux soigneusement selectionnes aupres de nos producteurs de confiance.
+                    </p>
+                    <p class="section-subtitle">
+                        Chaque assiette est le reflet de notre amour pour les belles saveurs et de notre engagement pour la qualite. Ici, on prend le temps de bien faire les choses, pour que chaque repas devienne un moment de plaisir partage.
+                    </p>
+                    <div class="about-signature">
+                        <div class="about-signature-name">{{PRENOM_GERANT}}</div>
+                        <div class="about-signature-role">Chef &amp; Fondateur de {{NOM_COMMERCE}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS / AVIS -->
+    <section class="testimonials-section" id="avis">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Avis Clients</span>
+                <h2 class="section-title">Ce que disent nos convives</h2>
+                <p class="section-subtitle">La meilleure recommandation, c'est celle de nos clients.</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-text">&laquo; Une tres belle decouverte. Le magret etait cuit a la perfection et le service impeccable. On sent la passion dans chaque plat. On a deja reserve pour y retourner ! &raquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">SL</div>
+                        <div>
+                            <div class="testimonial-name">Sophie Laurent</div>
+                            <div class="testimonial-date">Il y a 2 semaines</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-text">&laquo; Cadre chaleureux et cuisine raffinee. Le tartare de saumon est un vrai delice. Le personnel est aux petits soins. Clairement notre nouvelle adresse preferee a {{COMMUNE}}. &raquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">MB</div>
+                        <div>
+                            <div class="testimonial-name">Marc Blanchard</div>
+                            <div class="testimonial-date">Il y a 1 mois</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-text">&laquo; Nous avons fete notre anniversaire de mariage ici et tout etait parfait. Le fondant au chocolat est inoubliable. Merci a toute l'equipe pour cette soiree magique. &raquo;</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">CD</div>
+                        <div>
+                            <div class="testimonial-name">Claire Dupont</div>
+                            <div class="testimonial-date">Il y a 3 semaines</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INFOS PRATIQUES -->
+    <section class="info-section" id="infos">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label">Infos Pratiques</span>
+                <h2 class="section-title">Venez nous rendre visite</h2>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card fade-in">
+                    <div class="info-icon">&#128337;</div>
+                    <h3>Horaires d'ouverture</h3>
+                    <div class="hours-row">
+                        <span class="hours-day">Lundi</span>
+                        <span class="hours-time">12h - 14h / 19h - 22h30</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Mardi</span>
+                        <span class="hours-time">12h - 14h / 19h - 22h30</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Mercredi</span>
+                        <span class="hours-time">12h - 14h / 19h - 22h30</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Jeudi</span>
+                        <span class="hours-time">12h - 14h / 19h - 22h30</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Vendredi</span>
+                        <span class="hours-time">12h - 14h / 19h - 23h</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Samedi</span>
+                        <span class="hours-time">12h - 14h30 / 19h - 23h</span>
+                    </div>
+                    <div class="hours-row">
+                        <span class="hours-day">Dimanche</span>
+                        <span class="hours-closed">Ferme</span>
+                    </div>
+                </div>
+
+                <div class="info-card fade-in">
+                    <div class="info-icon">&#128205;</div>
+                    <h3>Nous trouver</h3>
+                    <div class="info-address">
+                        <strong>{{NOM_COMMERCE}}</strong><br>
+                        {{ADRESSE}}<br>
+                        {{COMMUNE}}
+                    </div>
+                    <div class="map-embed">
+                        <!-- Replace the src below with a real Google Maps embed URL -->
+                        <span class="map-placeholder">Google Maps - {{ADRESSE}}, {{COMMUNE}}</span>
+                    </div>
+                </div>
+
+                <div class="info-card fade-in">
+                    <div class="info-icon">&#128222;</div>
+                    <h3>Nous contacter</h3>
+                    <div class="info-contact-item">
+                        <span>&#128222;</span>
+                        <a href="tel:{{TELEPHONE}}">{{TELEPHONE}}</a>
+                    </div>
+                    <div class="info-contact-item">
+                        <span>&#9993;</span>
+                        <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
+                    </div>
+                    <div style="margin-top: 24px;">
+                        <a href="tel:{{TELEPHONE}}" class="btn btn-primary" style="width: 100%;">Appeler pour reserver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand"><span>{{NOM_COMMERCE}}</span></div>
+                <p class="footer-desc">Restaurant a {{COMMUNE}}. Une cuisine authentique preparee avec des produits frais et locaux, dans un cadre chaleureux.</p>
+                <div class="footer-socials" style="margin-top: 20px;">
+                    <a href="#" class="footer-social" aria-label="Facebook" title="Facebook">f</a>
+                    <a href="#" class="footer-social" aria-label="Instagram" title="Instagram">in</a>
+                    <a href="#" class="footer-social" aria-label="TripAdvisor" title="TripAdvisor">ta</a>
+                </div>
+            </div>
+            <div>
+                <h4>Navigation</h4>
+                <ul class="footer-links">
+                    <li><a href="#carte">La Carte</a></li>
+                    <li><a href="#histoire">Notre Histoire</a></li>
+                    <li><a href="#avis">Avis Clients</a></li>
+                    <li><a href="#infos">Infos Pratiques</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <ul class="footer-links">
+                    <li><a href="tel:{{TELEPHONE}}">{{TELEPHONE}}</a></li>
+                    <li><a href="mailto:{{EMAIL}}">{{EMAIL}}</a></li>
+                    <li><a href="#">{{ADRESSE}}</a></li>
+                    <li><a href="#">{{COMMUNE}}</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2025 {{NOM_COMMERCE}}. Tous droits reserves.</span>
+            <div style="display: flex; gap: 16px;">
+                <a href="#">Mentions legales</a>
+                <a href="#">Politique de confidentialite</a>
+            </div>
+            <span>Site cree par <a href="#" style="color: var(--primary, #C0784A);">WebPrestige</a></span>
+        </div>
+    </footer>
+
+    <!-- MOBILE CLICK-TO-CALL -->
+    <a href="tel:{{TELEPHONE}}" class="mobile-cta" aria-label="Appeler">&#128222;</a>
+
+    <script>
+        // Mobile navigation toggle
+        function toggleMobileNav() {
+            document.getElementById('mobileNav').classList.toggle('active');
+        }
+
+        function closeMobileNav() {
+            document.getElementById('mobileNav').classList.remove('active');
+        }
+
+        // Menu category tabs
+        function showCategory(category, e) {
+            document.querySelectorAll('.menu-category').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.menu-tab').forEach(function(el) {
+                el.classList.remove('active');
+            });
+            document.getElementById('cat-' + category).classList.add('active');
+            if (e && e.currentTarget) e.currentTarget.classList.add('active');
+        }
+
+        // Fade-in on scroll with IntersectionObserver
+        (function() {
+            var targets = document.querySelectorAll('.fade-in');
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.12,
+                    rootMargin: '0px 0px -40px 0px'
+                });
+                targets.forEach(function(target) {
+                    observer.observe(target);
+                });
+            } else {
+                // Fallback: show everything
+                targets.forEach(function(target) {
+                    target.classList.add('visible');
+                });
+            }
+        })();
+
+        // Close mobile nav on resize to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                closeMobileNav();
+            }
+        });
+    </script>
+</body>
+</html>

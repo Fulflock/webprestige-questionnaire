@@ -10,6 +10,7 @@
     { "src": "/api/chat", "dest": "/api/chat.js" },
     { "src": "/api/admin-chat", "dest": "/api/admin-chat.js" },
     { "src": "/api/debug", "dest": "/api/debug.js" },
+    { "src": "/api/qa", "dest": "/api/qa.js" },
     { "src": "/api/cron/relance", "dest": "/api/cron/relance.js" },
     { "src": "/admin", "dest": "/admin.html" },
     { "src": "/(.*)", "dest": "/index.html" }

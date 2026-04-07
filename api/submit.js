@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
       fetch(`${baseUrl}/api/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-internal-secret': process.env.INTERNAL_SECRET || 'wp-internal-2026' },
         body: JSON.stringify({ notionPageId, data })
       }).catch(e => console.error('[Generate] Trigger erreur:', e.message));
 
