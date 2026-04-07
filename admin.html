@@ -105,7 +105,39 @@
     .rev-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #1a1a1a}
     .rev-row .rl{color:#888} .rev-row .rv{color:#ccc;font-weight:600}
 
-    @media(max-width:768px){.stats-bar{padding:16px}.prospects-grid{padding:0 16px 16px;grid-template-columns:1fr}.header{padding:18px 16px}.filter-bar{padding:12px 16px}.kpi-grid{grid-template-columns:1fr 1fr;padding:16px}.funnel-section{padding:16px}.rev-grid{grid-template-columns:1fr;padding:0 16px 16px}}
+    /* ====== TODAY ACTIONS ====== */
+    .today-box{background:linear-gradient(135deg,#1a1a2e,#1e2a3e);border:1px solid #2a3a4a;border-radius:14px;padding:24px;margin-bottom:20px}
+    .today-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
+    .today-sub{font-size:13px;color:#888;margin-bottom:20px}
+    .today-list{display:flex;flex-direction:column;gap:10px}
+    .today-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#12121a;border:1px solid #2a2a3a;border-radius:10px;transition:all .2s}
+    .today-item:hover{border-color:#C0784A}
+    .today-priority{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .today-info{flex:1}
+    .today-name{font-size:14px;font-weight:700;color:#fff}
+    .today-desc{font-size:12px;color:#888;margin-top:2px}
+    .today-action{padding:8px 14px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;flex-shrink:0}
+    .today-action:hover{transform:translateY(-1px)}
+    .today-action.call{background:#22c55e;color:#fff}
+    .today-action.email{background:#3b82f6;color:#fff}
+    .today-action.status{background:rgba(192,120,74,.2);color:#C0784A;border:1px solid #C0784A}
+    .today-empty{text-align:center;padding:20px;color:#4ade80;font-size:14px;font-weight:600}
+
+    /* ====== ACTION BUTTONS ON CARDS ====== */
+    .card-actions{padding:10px 20px 14px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #1a1a24}
+    .act-btn{padding:6px 12px;border-radius:6px;border:1px solid #333;background:transparent;color:#999;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;transition:all .15s}
+    .act-btn:hover{border-color:#C0784A;color:#C0784A;background:rgba(192,120,74,.1)}
+    .act-btn.green{border-color:#22c55e;color:#22c55e} .act-btn.green:hover{background:rgba(34,197,94,.1)}
+    .act-btn.blue{border-color:#3b82f6;color:#3b82f6} .act-btn.blue:hover{background:rgba(59,130,246,.1)}
+    .act-btn.red{border-color:#ef4444;color:#ef4444} .act-btn.red:hover{background:rgba(239,68,68,.1)}
+    .act-btn.done{opacity:.5;pointer-events:none}
+
+    /* Toast notification */
+    .toast{position:fixed;top:20px;right:20px;padding:14px 20px;border-radius:10px;background:#22c55e;color:#fff;font-size:13px;font-weight:600;z-index:10000;animation:slideIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+    .toast.error{background:#ef4444}
+    @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+
+    @media(max-width:768px){.stats-bar{padding:16px}.prospects-grid{padding:0 16px 16px;grid-template-columns:1fr}.header{padding:18px 16px}.filter-bar{padding:12px 16px}.kpi-grid{grid-template-columns:1fr 1fr;padding:16px}.funnel-section{padding:16px}.rev-grid{grid-template-columns:1fr;padding:0 16px 16px}.today-item{flex-wrap:wrap}}
 
     /* ====== CHATBOT ADMIN ====== */
     .admin-chat-toggle{position:fixed;bottom:24px;right:24px;z-index:9999;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#C0784A,#a0623a);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(192,120,74,.4);display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:24px}
@@ -162,6 +194,8 @@
 
   <!-- TAB: OVERVIEW -->
   <div class="tab-content active" id="tab-overview">
+    <!-- ACTIONS DU JOUR -->
+    <div id="todayActions" style="padding:24px 32px 0"></div>
     <div class="kpi-grid" id="kpiGrid"></div>
     <div class="funnel-section"><h3 style="font-size:14px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Funnel de Conversion</h3><div id="funnelBars"></div></div>
     <div class="rev-grid" id="revCards"></div>
@@ -222,7 +256,29 @@ const claudeLink=p.id?'/api/preview?id='+p.id:'';
 return`<div class="prospect-card"><div class="card-header"><div><div class="card-commerce">${esc(p.commerce)}</div><span class="status-badge ${sc}">${esc(p.statut)}</span></div><span class="card-secteur">${esc(p.secteur)}</span></div>
 <div class="card-info"><span class="label">G\u00e9rant</span><span class="value">${esc(p.prenom_gerant)||'\u2014'}</span><span class="label">Commune</span><span class="value">${esc(p.commune)}</span><span class="label">T\u00e9l</span><span class="value"><a href="tel:${p.telephone}">${esc(p.telephone)}</a></span><span class="label">Email</span><span class="value"><a href="mailto:${p.email}">${esc(p.email)||'\u2014'}</a></span>${p.budget?`<span class="label">Budget</span><span class="value">${esc(p.budget)}</span>`:''}</div>
 <div class="card-sites"><a href="${v0Link||'#'}" target="_blank" class="site-btn v0 ${v0Link?'':'disabled'}">\u25B2 Preview v0</a><a href="${claudeLink||'#'}" target="_blank" class="site-btn claude ${claudeLink?'':'disabled'}">\uD83E\uDD16 Preview Claude</a></div>
+<div class="card-actions">${getActionButtons(p)}</div>
 <div class="card-footer"><span>${date}</span><a href="${p.notion_url}" target="_blank">Ouvrir Notion \u2192</a></div></div>`}
+
+function getActionButtons(p){
+  const id=p.id;const s=p.statut;
+  const call=p.telephone?`<a href="tel:${p.telephone}" class="act-btn green">Appeler</a>`:'';
+  const email=p.email?`<a href="mailto:${p.email}" class="act-btn blue">Email</a>`:'';
+
+  // Next logical action based on current status
+  const nextMap={
+    'Identifi\u00e9':{label:'Marquer contact\u00e9',next:'Contact\u00e9'},
+    'Contact\u00e9':{label:'Formulaire re\u00e7u',next:'Formulaire re\u00e7u'},
+    'Formulaire re\u00e7u':{label:'D\u00e9mo envoy\u00e9e',next:'D\u00e9mo envoy\u00e9e'},
+    'D\u00e9mo envoy\u00e9e':{label:'Fixer RDV',next:'RDV fix\u00e9'},
+    'RDV fix\u00e9':{label:'Envoyer devis',next:'Devis envoy\u00e9'},
+    'Devis envoy\u00e9':{label:'SIGNER',next:'Sign\u00e9'},
+  };
+  const nx=nextMap[s];
+  const nextBtn=nx?`<button class="act-btn" style="border-color:#C0784A;color:#C0784A" onclick="updateStatus('${id}','${nx.next}')">\u2192 ${nx.label}</button>`:'';
+  const lostBtn=(s!=='Sign\u00e9'&&s!=='Perdu')?`<button class="act-btn red" onclick="updateStatus('${id}','Perdu')">Perdu</button>`:'';
+
+  return call+email+nextBtn+lostBtn;
+}
 function getStatusClass(s){if(!s)return'';if(s==='Identifi\u00e9')return'status-nouveau';if(s==='Contact\u00e9'||s==='Formulaire envoy\u00e9')return'status-contacte';if(s==='Formulaire re\u00e7u')return'status-rdv';if(s==='D\u00e9mo envoy\u00e9e')return'status-devis';if(s==='RDV fix\u00e9')return'status-devis';if(s==='Devis envoy\u00e9')return'status-devis';if(s==='Sign\u00e9')return'status-signe';if(s==='Perdu'||s==='Hors cible')return'status-perdu';return''}
 function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
 
@@ -311,6 +367,95 @@ function renderRevTab(s){
   document.getElementById('revProjection').innerHTML=html;
 }
 
+// ====== UPDATE STATUS ======
+async function updateStatus(pageId,newStatus){
+  try{
+    const r=await fetch('/api/update-status',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({pageId,status:newStatus,key:adminKey})
+    });
+    const data=await r.json();
+    if(data.success){
+      showToast('\u2705 '+newStatus+' !');
+      loadProspects(); // Refresh
+    }else{
+      showToast('Erreur: '+(data.error||'inconnue'),'error');
+    }
+  }catch(e){showToast('Erreur connexion','error')}
+}
+
+function showToast(msg,type){
+  const t=document.createElement('div');
+  t.className='toast'+(type==='error'?' error':'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+// ====== ACTIONS DU JOUR ======
+function renderTodayActions(){
+  const actions=[];
+
+  // Find prospects that need action
+  allProspects.forEach(p=>{
+    const s=p.statut;
+    const days=p.date_contact?Math.floor((Date.now()-new Date(p.date_contact))/(1000*60*60*24)):999;
+
+    // Formulaire recu > 1 day ago = send demo
+    if(s==='Formulaire re\u00e7u'){
+      actions.push({p,priority:'#fbbf24',desc:'Site g\u00e9n\u00e9r\u00e9, envoie la d\u00e9mo au client',action:'D\u00e9mo envoy\u00e9e',btnLabel:'Envoyer d\u00e9mo',btnClass:'email',days});
+    }
+    // Demo sent > 2 days = relancer
+    if(s==='D\u00e9mo envoy\u00e9e'&&days>=2){
+      actions.push({p,priority:'#f97316',desc:'D\u00e9mo envoy\u00e9e il y a '+days+'j, relance-le !',action:'call',btnLabel:'Appeler',btnClass:'call',days});
+    }
+    // RDV fixe = prepare
+    if(s==='RDV fix\u00e9'){
+      actions.push({p,priority:'#ef4444',desc:'RDV fix\u00e9 ! Pr\u00e9pare le devis (790\u20AC)',action:'Devis envoy\u00e9',btnLabel:'Envoyer devis',btnClass:'status',days});
+    }
+    // Devis sent > 3 days = relancer
+    if(s==='Devis envoy\u00e9'&&days>=3){
+      actions.push({p,priority:'#ef4444',desc:'Devis envoy\u00e9 il y a '+days+'j, RELANCE !',action:'call',btnLabel:'Appeler',btnClass:'call',days});
+    }
+    // Contacted > 3 days = relancer
+    if(s==='Contact\u00e9'&&days>=3){
+      actions.push({p,priority:'#8b5cf6',desc:'Contact\u00e9 il y a '+days+'j, relance',action:'call',btnLabel:'Rappeler',btnClass:'call',days});
+    }
+  });
+
+  // Sort by priority (most urgent first)
+  actions.sort((a,b)=>b.days-a.days);
+
+  const container=document.getElementById('todayActions');
+  if(!actions.length){
+    container.innerHTML=`<div class="today-box"><div class="today-empty">\u2705 Rien \u00e0 faire ! Trouve de nouveaux prospects.</div></div>`;
+    return;
+  }
+
+  container.innerHTML=`
+    <div class="today-box">
+      <div class="today-title">\u{1F3AF} Actions du jour</div>
+      <div class="today-sub">${actions.length} action${actions.length>1?'s':''} en attente. Commence par le haut.</div>
+      <div class="today-list">
+        ${actions.slice(0,8).map(a=>`
+          <div class="today-item">
+            <div class="today-priority" style="background:${a.priority}"></div>
+            <div class="today-info">
+              <div class="today-name">${esc(a.p.commerce)} — ${esc(a.p.secteur)}</div>
+              <div class="today-desc">${a.desc}</div>
+            </div>
+            ${a.action==='call'&&a.p.telephone?
+              `<a href="tel:${a.p.telephone}" class="today-action call">\u260E Appeler</a>`
+              :`<button class="today-action status" onclick="updateStatus('${a.p.id}','${a.action}')">\u2192 ${a.btnLabel}</button>`
+            }
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
 // Patch renderAll to include new sections
 const __origRenderAll=_origRenderAll;
 _origRenderAll=function(data){
@@ -319,6 +464,7 @@ _origRenderAll=function(data){
   renderFunnel(data.stats);
   renderRevenue(data.stats);
   renderTimeline();
+  renderTodayActions();
   renderRevTab(data.stats);
 };
 </script>
