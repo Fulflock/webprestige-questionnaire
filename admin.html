@@ -64,7 +64,48 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .empty-state{text-align:center;padding:80px 32px;color:#666}
     .empty-state .emoji{font-size:48px;margin-bottom:16px}
-    @media(max-width:768px){.stats-bar{padding:16px}.prospects-grid{padding:0 16px 16px;grid-template-columns:1fr}.header{padding:18px 16px}.filter-bar{padding:12px 16px}}
+
+    /* ====== TABS ====== */
+    .tab-bar{display:flex;border-bottom:1px solid #1e1e2a;background:#12121a}
+    .tab-btn{padding:14px 24px;font-size:13px;font-weight:600;color:#666;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;font-family:inherit;transition:all .2s}
+    .tab-btn:hover{color:#ccc}
+    .tab-btn.active{color:#C0784A;border-bottom-color:#C0784A}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    /* ====== FUNNEL VISUAL ====== */
+    .funnel-section{padding:24px 32px}
+    .funnel-row{display:flex;align-items:center;gap:0;margin-bottom:8px}
+    .funnel-bar{height:42px;border-radius:6px;display:flex;align-items:center;padding:0 16px;justify-content:space-between;transition:width 1s ease;min-width:60px}
+    .funnel-label{font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+    .funnel-count{font-size:14px;font-weight:800;color:#fff;font-family:'Inter',monospace}
+    .funnel-rate{font-size:11px;color:#888;min-width:60px;text-align:right;padding-left:12px}
+
+    /* ====== KPI CARDS ====== */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:24px 32px}
+    .kpi-card{background:#1a1a24;border:1px solid #2a2a3a;border-radius:12px;padding:20px;text-align:center}
+    .kpi-val{font-size:32px;font-weight:800}
+    .kpi-label{font-size:11px;color:#888;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+    .kpi-sub{font-size:12px;margin-top:8px;font-weight:600}
+    .kpi-green{color:#4ade80} .kpi-yellow{color:#fbbf24} .kpi-red{color:#f87171} .kpi-copper{color:#C0784A}
+
+    /* ====== ACTIVITY TIMELINE ====== */
+    .timeline-section{padding:24px 32px}
+    .timeline-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #1a1a24}
+    .timeline-dot{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0}
+    .timeline-text{font-size:13px;color:#ccc;line-height:1.5}
+    .timeline-text .name{color:#C0784A;font-weight:600}
+    .timeline-text .time{color:#555;font-size:11px;margin-left:8px}
+
+    /* ====== REVENUE ====== */
+    .rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 32px 24px}
+    .rev-card{background:#1a1a24;border:1px solid #2a2a3a;border-radius:12px;padding:20px}
+    .rev-title{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+    .rev-big{font-size:36px;font-weight:800;color:#4ade80}
+    .rev-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #1a1a1a}
+    .rev-row .rl{color:#888} .rev-row .rv{color:#ccc;font-weight:600}
+
+    @media(max-width:768px){.stats-bar{padding:16px}.prospects-grid{padding:0 16px 16px;grid-template-columns:1fr}.header{padding:18px 16px}.filter-bar{padding:12px 16px}.kpi-grid{grid-template-columns:1fr 1fr;padding:16px}.funnel-section{padding:16px}.rev-grid{grid-template-columns:1fr;padding:0 16px 16px}}
 
     /* ====== CHATBOT ADMIN ====== */
     .admin-chat-toggle{position:fixed;bottom:24px;right:24px;z-index:9999;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#C0784A,#a0623a);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(192,120,74,.4);display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:24px}
@@ -113,19 +154,47 @@
     <h1><span>WebPrestige</span> — Dashboard</h1>
     <button class="refresh-btn" onclick="loadProspects()">Rafra&icirc;chir</button>
   </div>
-  <div class="stats-bar" id="statsBar"></div>
-  <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" data-filter="all">Tous</button>
-    <button class="filter-btn" data-filter="identifie">Identifi&eacute;s</button>
-    <button class="filter-btn" data-filter="contacte">Contact&eacute;s</button>
-    <button class="filter-btn" data-filter="formulaire_recu">Formulaire re&ccedil;u</button>
-    <button class="filter-btn" data-filter="demo">D&eacute;mo</button>
-    <button class="filter-btn" data-filter="rdv">RDV</button>
-    <button class="filter-btn" data-filter="devis">Devis</button>
-    <button class="filter-btn" data-filter="signe">Sign&eacute;s</button>
-    <button class="filter-btn" data-filter="perdu">Perdus</button>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('overview')">Vue d'ensemble</button>
+    <button class="tab-btn" onclick="showTab('prospects')">Prospects</button>
+    <button class="tab-btn" onclick="showTab('revenue')">Revenue</button>
   </div>
-  <div id="content"><div class="loading"><div class="spinner"></div><span style="color:#888;font-size:14px">Chargement...</span></div></div>
+
+  <!-- TAB: OVERVIEW -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="funnel-section"><h3 style="font-size:14px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Funnel de Conversion</h3><div id="funnelBars"></div></div>
+    <div class="rev-grid" id="revCards"></div>
+    <div class="timeline-section"><h3 style="font-size:14px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px">Activit&eacute; R&eacute;cente</h3><div id="timeline"></div></div>
+  </div>
+
+  <!-- TAB: PROSPECTS -->
+  <div class="tab-content" id="tab-prospects">
+    <div class="stats-bar" id="statsBar"></div>
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">Tous</button>
+      <button class="filter-btn" data-filter="identifie">Identifi&eacute;s</button>
+      <button class="filter-btn" data-filter="contacte">Contact&eacute;s</button>
+      <button class="filter-btn" data-filter="formulaire_recu">Formulaire re&ccedil;u</button>
+      <button class="filter-btn" data-filter="demo">D&eacute;mo</button>
+      <button class="filter-btn" data-filter="rdv">RDV</button>
+      <button class="filter-btn" data-filter="devis">Devis</button>
+      <button class="filter-btn" data-filter="signe">Sign&eacute;s</button>
+      <button class="filter-btn" data-filter="perdu">Perdus</button>
+    </div>
+    <div id="content"><div class="loading"><div class="spinner"></div><span style="color:#888;font-size:14px">Chargement...</span></div></div>
+  </div>
+
+  <!-- TAB: REVENUE -->
+  <div class="tab-content" id="tab-revenue">
+    <div class="kpi-grid" id="revKpis"></div>
+    <div style="padding:24px 32px">
+      <div class="rev-card" style="background:#1a1a24;border:1px solid #2a2a3a;border-radius:12px;padding:24px">
+        <div class="rev-title">Projection Revenue</div>
+        <div id="revProjection"></div>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
 let allProspects=[],currentFilter='all',adminKey='';
@@ -156,6 +225,102 @@ return`<div class="prospect-card"><div class="card-header"><div><div class="card
 <div class="card-footer"><span>${date}</span><a href="${p.notion_url}" target="_blank">Ouvrir Notion \u2192</a></div></div>`}
 function getStatusClass(s){if(!s)return'';if(s==='Identifi\u00e9')return'status-nouveau';if(s==='Contact\u00e9'||s==='Formulaire envoy\u00e9')return'status-contacte';if(s==='Formulaire re\u00e7u')return'status-rdv';if(s==='D\u00e9mo envoy\u00e9e')return'status-devis';if(s==='RDV fix\u00e9')return'status-devis';if(s==='Devis envoy\u00e9')return'status-devis';if(s==='Sign\u00e9')return'status-signe';if(s==='Perdu'||s==='Hors cible')return'status-perdu';return''}
 function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+
+// ====== TABS ======
+function showTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ====== KPIs ======
+function renderKpis(s){
+  const total=s.total||0;const signes=s.signe||0;const devis=s.devis||0;const rdv=s.rdv||0;
+  const convRate=total>0?Math.round((signes/total)*100):0;
+  const pipelineValue=(s.formulaire_recu||0)*790+(s.demo||0)*790+(rdv)*790+(devis)*790;
+  const mrr=signes*79;
+  const ca=signes*790+mrr;
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi-card"><div class="kpi-val kpi-copper">${total}</div><div class="kpi-label">Total Prospects</div><div class="kpi-sub" style="color:#888">Pipeline actif</div></div>
+    <div class="kpi-card"><div class="kpi-val kpi-green">${signes}</div><div class="kpi-label">Clients Sign&eacute;s</div><div class="kpi-sub kpi-green">+${mrr}&euro;/mois MRR</div></div>
+    <div class="kpi-card"><div class="kpi-val kpi-yellow">${convRate}%</div><div class="kpi-label">Taux Conversion</div><div class="kpi-sub" style="color:#888">${signes}/${total} prospects</div></div>
+    <div class="kpi-card"><div class="kpi-val kpi-copper">${pipelineValue.toLocaleString('fr-FR')}&euro;</div><div class="kpi-label">Pipeline Value</div><div class="kpi-sub" style="color:#888">Potentiel en cours</div></div>
+  `;
+}
+
+// ====== FUNNEL ======
+function renderFunnel(s){
+  const steps=[
+    {label:'Identifi\u00e9s',count:s.identifie||0,color:'#3b82f6'},
+    {label:'Contact\u00e9s',count:s.contacte||0,color:'#8b5cf6'},
+    {label:'Formulaire',count:s.formulaire_recu||0,color:'#eab308'},
+    {label:'D\u00e9mo',count:s.demo||0,color:'#c084fc'},
+    {label:'RDV',count:s.rdv||0,color:'#f97316'},
+    {label:'Devis',count:s.devis||0,color:'#fb923c'},
+    {label:'Sign\u00e9s',count:s.signe||0,color:'#22c55e'},
+  ];
+  const max=Math.max(...steps.map(s=>s.count),1);
+  document.getElementById('funnelBars').innerHTML=steps.map((st,i)=>{
+    const w=Math.max(8,(st.count/max)*100);
+    const prev=i>0?steps[i-1].count:0;
+    const rate=prev>0?Math.round((st.count/prev)*100)+'%':'--';
+    return`<div class="funnel-row"><div class="funnel-bar" style="width:${w}%;background:${st.color}"><span class="funnel-label">${st.label}</span><span class="funnel-count">${st.count}</span></div><span class="funnel-rate">${i>0?'\u2192 '+rate:''}</span></div>`;
+  }).join('');
+}
+
+// ====== REVENUE CARDS ======
+function renderRevenue(s){
+  const signes=s.signe||0;const mrr=signes*79;const oneshot=signes*790;const total=oneshot+mrr;
+  document.getElementById('revCards').innerHTML=`
+    <div class="rev-card"><div class="rev-title">Revenue Actuel</div><div class="rev-big">${total.toLocaleString('fr-FR')}&euro;</div>
+    <div style="margin-top:12px"><div class="rev-row"><span class="rl">One-shot (sites)</span><span class="rv">${oneshot.toLocaleString('fr-FR')}&euro;</span></div><div class="rev-row"><span class="rl">MRR (maintenance)</span><span class="rv">${mrr}&euro;/mois</span></div><div class="rev-row"><span class="rl">Clients actifs</span><span class="rv">${signes}</span></div><div class="rev-row"><span class="rl">Panier moyen</span><span class="rv">790&euro;</span></div></div></div>
+    <div class="rev-card"><div class="rev-title">Objectif 10K&euro;/mois</div><div class="rev-big" style="color:${mrr>=10000?'#4ade80':'#C0784A'}">${Math.round((total/10000)*100)}%</div>
+    <div style="margin-top:12px;background:#222;border-radius:6px;height:12px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,#C0784A,#4ade80);width:${Math.min(100,Math.round((total/10000)*100))}%;border-radius:6px;transition:width 1s"></div></div>
+    <div style="margin-top:12px"><div class="rev-row"><span class="rl">Objectif mensuel</span><span class="rv">10 000&euro;</span></div><div class="rev-row"><span class="rl">Clients n&eacute;cessaires</span><span class="rv">~70 maintenance</span></div><div class="rev-row"><span class="rl">D&eacute;lai estim&eacute;</span><span class="rv">~9 mois</span></div></div></div>
+  `;
+}
+
+// ====== TIMELINE ======
+function renderTimeline(){
+  const colors={'Identifi\u00e9':'#3b82f6','Contact\u00e9':'#8b5cf6','Formulaire re\u00e7u':'#eab308','D\u00e9mo envoy\u00e9e':'#c084fc','RDV fix\u00e9':'#f97316','Devis envoy\u00e9':'#fb923c','Sign\u00e9':'#22c55e','Perdu':'#ef4444'};
+  const recent=allProspects.slice(0,10);
+  document.getElementById('timeline').innerHTML=recent.map(p=>{
+    const d=p.date_contact?new Date(p.date_contact).toLocaleDateString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    const c=colors[p.statut]||'#666';
+    return`<div class="timeline-item"><div class="timeline-dot" style="background:${c}"></div><div class="timeline-text"><span class="name">${esc(p.commerce)}</span> — ${esc(p.statut)}<span class="time">${d}</span></div></div>`;
+  }).join('')||'<p style="color:#555;padding:20px">Aucune activit\u00e9 r\u00e9cente</p>';
+}
+
+// ====== REVENUE TAB ======
+function renderRevTab(s){
+  const signes=s.signe||0;const mrr=signes*79;
+  document.getElementById('revKpis').innerHTML=`
+    <div class="kpi-card"><div class="kpi-val kpi-green">${(signes*790).toLocaleString('fr-FR')}&euro;</div><div class="kpi-label">CA One-Shot</div></div>
+    <div class="kpi-card"><div class="kpi-val kpi-green">${mrr}&euro;</div><div class="kpi-label">MRR Mensuel</div></div>
+    <div class="kpi-card"><div class="kpi-val kpi-copper">790&euro;</div><div class="kpi-label">Panier Moyen</div></div>
+    <div class="kpi-card"><div class="kpi-val kpi-yellow">90%</div><div class="kpi-label">Marge Nette</div></div>
+  `;
+  // Projection table
+  let html='';
+  for(let m=1;m<=12;m++){
+    const clients=Math.round(signes+m*1.5);const mrrM=clients*79;const oneM=Math.round(m*1.5)*790;const tot=oneM+mrrM;
+    const highlight=tot>=10000?'color:#4ade80;font-weight:700':'color:#ccc';
+    html+=`<div class="rev-row"><span class="rl">Mois ${m}</span><span class="rv" style="${highlight}">${tot.toLocaleString('fr-FR')}&euro; (${clients} clients, ${mrrM}&euro; MRR)</span></div>`;
+  }
+  document.getElementById('revProjection').innerHTML=html;
+}
+
+// Patch renderAll to include new sections
+const __origRenderAll=_origRenderAll;
+_origRenderAll=function(data){
+  __origRenderAll(data);
+  renderKpis(data.stats);
+  renderFunnel(data.stats);
+  renderRevenue(data.stats);
+  renderTimeline();
+  renderRevTab(data.stats);
+};
 </script>
 
 <!-- ====== CHATBOT ADMIN ====== -->
