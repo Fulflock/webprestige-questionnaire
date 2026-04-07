@@ -114,17 +114,20 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // 5. LOVABLE PROMPT (toujours généré)
+    // 5. ALL PROMPTS (toujours générés)
     // ==========================================
     const lovablePrompt = generateLovablePrompt(data);
+    const boltPrompt = generateBoltPrompt(data);
+    const websimPrompt = generateWebsimPrompt(data);
+    const cursorPrompt = generateCursorPrompt(data);
     const lovableUrl = `https://lovable.dev/projects/create#prompt=${encodeURIComponent(lovablePrompt.substring(0, 500))}`;
 
-    // Store prompt in Notion page
+    // Store all prompts in Notion page
     try {
-      await storeLovablePromptInNotion(notionPageId, lovablePrompt);
-      console.log('[Lovable] Prompt stocké dans Notion');
+      await storeAllPromptsInNotion(notionPageId, lovablePrompt, boltPrompt, websimPrompt, cursorPrompt);
+      console.log('[Prompts] 4 prompts stockés dans Notion (Lovable, Bolt, Websim, Cursor)');
     } catch (e) {
-      console.error('[Lovable] Erreur stockage:', e.message);
+      console.error('[Prompts] Erreur stockage:', e.message);
     }
 
     // ==========================================
@@ -583,6 +586,360 @@ IMPORTANT :
 - ${design.images}`;
 }
 
+// ==========================================
+// BOLT.NEW — Prompt optimisé
+// ==========================================
+function generateBoltPrompt(data) {
+  const secteurDesigns = {
+    'Restaurant': {
+      style: 'warm dark theme, background #1a1a1a, copper accents #C0784A, cozy ambiance',
+      sections: 'menu with categories (starters/mains/desserts) and prices, photo gallery, click-to-call reservation, hours',
+      cta: 'Réserver une table',
+      images: 'gastro food photos, warm restaurant interior, terrace'
+    },
+    'Pizzeria': {
+      style: 'warm red and cream, background #FFF8F0, red #D32F2F and green #388E3C italian accents',
+      sections: 'pizza menu with prices and ingredients, lunch deals, delivery/takeout, phone order',
+      cta: 'Commander',
+      images: 'artisan pizzas, wood-fired oven, fresh ingredients'
+    },
+    'Coiffeur': {
+      style: 'elegant light theme, background #FAFAF8, gold accents #B8860B, Playfair Display font',
+      sections: 'detailed pricing (women/men cut, coloring, highlights, blowdry), before/after gallery, booking',
+      cta: 'Prendre rendez-vous',
+      images: 'elegant hairstyles, modern salon interior, styling tools'
+    },
+    'Boulangerie': {
+      style: 'warm artisan theme, cream background #FDF8F0, brown accents #8B5E3C',
+      sections: 'breads (4 types with prices), pastries, artisan know-how, hours 6:30-19:30',
+      cta: 'Découvrir nos produits',
+      images: 'golden bread, croissants, pastry display, baker at work'
+    },
+    'Plombier': {
+      style: 'professional trust theme, background #f8f9fa, blue accents #1a56db, dark header',
+      sections: 'services (repair, installation, renovation), 20-city coverage, 24h emergency, free quote, RGE certified',
+      cta: 'Devis gratuit',
+      images: 'craftsman at work, professional tools, renovated bathroom'
+    },
+    'Artisan / BTP': {
+      style: 'professional trust theme, background #f8f9fa, blue #1a56db, red emergency banner',
+      sections: 'services with icons, project gallery, coverage area, free quote, certifications',
+      cta: 'Demander un devis',
+      images: 'clean worksite, before/after renovation, team at work'
+    },
+  };
+
+  const design = secteurDesigns[data.secteur] || {
+    style: 'modern clean theme, white background, copper accents #C0784A',
+    sections: 'services, about, testimonials, contact',
+    cta: 'Nous contacter',
+    images: 'professional business photos'
+  };
+
+  return `Build a professional business website for "${data.nom_commerce}", a ${data.secteur} located in ${data.commune}, France.
+
+Use React, Tailwind CSS, and shadcn/ui components.
+
+DESIGN:
+- ${design.style}
+- Mobile-first responsive
+- Subtle scroll animations (fade-in)
+- Sticky header with navigation
+- Visible "${design.cta}" button in header and hero
+- Fixed click-to-call button bottom-right on mobile: tel:${data.telephone || '0600000000'}
+
+SECTIONS:
+1. HERO: full-screen, catchy title "${data.nom_commerce}", subtitle "${data.secteur} à ${data.commune}", CTA "${design.cta}", background image (unsplash placeholder)
+2. SERVICES: ${design.sections}
+3. ABOUT: business story, ${data.prenom_gerant ? `run by ${data.prenom_gerant}, ` : ''}local expertise in ${data.commune}
+4. TESTIMONIALS: 3 realistic French reviews (Sophie L., Marc D., Claire B.) with 5 stars
+5. CONTACT: clickable phone ${data.telephone || '06 00 00 00 00'}, address ${data.commune}${data.adresse ? ' ' + data.adresse : ''}, opening hours, simple form (name + phone + message), Google Maps embed
+6. FOOTER: nav links, hours, legal, "Site créé par WebPrestige"
+
+BUSINESS INFO:
+- Name: ${data.nom_commerce}
+${data.prenom_gerant ? `- Owner: ${data.prenom_gerant}` : ''}
+- Sector: ${data.secteur}
+- City: ${data.commune}
+${data.adresse ? `- Address: ${data.adresse}` : ''}
+- Phone: ${data.telephone || 'N/A'}
+${data.description ? `- Description: ${data.description}` : ''}
+- Style: ${data.style_souhaite || 'Modern and professional'}
+- Colors: ${data.couleurs || 'Sector-appropriate'}
+
+SEO:
+- Title: "${data.nom_commerce} — ${data.secteur} à ${data.commune}"
+- Meta description with local keywords
+- Schema.org LocalBusiness JSON-LD
+
+IMPORTANT:
+- All text in FRENCH
+- Use high-quality placeholder images (unsplash)
+- Professional agency-level design
+- ${design.images}`;
+}
+
+
+// ==========================================
+// WEBSIM.AI — Prompt optimisé (HTML/CSS/JS pur)
+// ==========================================
+function generateWebsimPrompt(data) {
+  const secteurDesigns = {
+    'Restaurant': {
+      style: 'warm dark theme, fond sombre #1a1a1a, accents cuivre #C0784A',
+      sections: 'menu avec catégories et prix, galerie photo, réservation click-to-call, horaires',
+      cta: 'Réserver une table'
+    },
+    'Pizzeria': {
+      style: 'warm red and cream, fond #FFF8F0, accents rouge #D32F2F et vert #388E3C',
+      sections: 'carte des pizzas avec prix, formules midi, livraison/emporter',
+      cta: 'Commander'
+    },
+    'Coiffeur': {
+      style: 'elegant light theme, fond #FAFAF8, accents or #B8860B',
+      sections: 'tarifs détaillés, galerie avant/après, prise de RDV',
+      cta: 'Prendre rendez-vous'
+    },
+    'Boulangerie': {
+      style: 'warm artisan theme, fond crème #FDF8F0, accents brun #8B5E3C',
+      sections: 'nos pains et viennoiseries avec prix, savoir-faire artisanal, horaires',
+      cta: 'Découvrir nos produits'
+    },
+    'Plombier': {
+      style: 'professional trust theme, fond #f8f9fa, accents bleu #1a56db',
+      sections: 'services, zone intervention, urgence 24h, devis gratuit',
+      cta: 'Devis gratuit'
+    },
+    'Artisan / BTP': {
+      style: 'professional trust theme, fond #f8f9fa, accents bleu #1a56db',
+      sections: 'services avec icônes, réalisations, zone intervention, devis gratuit',
+      cta: 'Demander un devis'
+    },
+  };
+
+  const design = secteurDesigns[data.secteur] || {
+    style: 'modern clean theme, fond blanc, accents cuivre #C0784A',
+    sections: 'services, à propos, témoignages, contact',
+    cta: 'Nous contacter'
+  };
+
+  return `Single HTML file with inline CSS and JS. Site vitrine professionnel pour "${data.nom_commerce}", ${data.secteur} à ${data.commune}, France.
+
+PAS de React, PAS de framework. HTML pur + CSS dans <style> + JS dans <script>. Google Fonts (Inter ou Poppins).
+
+DESIGN : ${design.style}
+- Responsive mobile-first avec media queries
+- Animations CSS (fade-in au scroll avec IntersectionObserver)
+- Header sticky avec navigation
+- Bouton "${design.cta}" visible dans le header et le hero
+- Bouton click-to-call fixe en bas à droite sur mobile : tel:${data.telephone || '0600000000'}
+
+SECTIONS :
+1. HERO plein écran : titre "${data.nom_commerce}" + sous-titre "${data.secteur} à ${data.commune}" + CTA "${design.cta}"
+2. SERVICES : ${design.sections}
+3. À PROPOS : histoire du commerce${data.prenom_gerant ? `, géré par ${data.prenom_gerant}` : ''}, savoir-faire local
+4. TÉMOIGNAGES : 3 avis clients réalistes (Sophie L., Marc D., Claire B.) avec 5 étoiles
+5. CONTACT : tel cliquable ${data.telephone || '06 00 00 00 00'}, adresse ${data.commune}${data.adresse ? ' ' + data.adresse : ''}, formulaire (nom + tel + message)
+6. FOOTER : liens, horaires, mentions légales, "Site créé par WebPrestige"
+
+INFOS :
+- Nom : ${data.nom_commerce}
+${data.prenom_gerant ? `- Gérant : ${data.prenom_gerant}` : ''}
+- Secteur : ${data.secteur}
+- Ville : ${data.commune}
+${data.adresse ? `- Adresse : ${data.adresse}` : ''}
+- Tél : ${data.telephone || 'Non renseigné'}
+${data.description ? `- Description : ${data.description}` : ''}
+- Style : ${data.style_souhaite || 'Moderne et professionnel'}
+- Couleurs : ${data.couleurs || 'Adaptées au secteur'}
+
+SEO : meta title "${data.nom_commerce} — ${data.secteur} à ${data.commune}", meta description, Schema.org LocalBusiness JSON-LD.
+
+Textes en FRANÇAIS. Design pro niveau agence.`;
+}
+
+
+// ==========================================
+// CURSOR / CLAUDE CODE — Prompt optimisé (spec technique détaillée)
+// ==========================================
+function generateCursorPrompt(data) {
+  const secteurDesigns = {
+    'Restaurant': {
+      style: 'warm dark theme, fond sombre #1a1a1a, accents cuivre #C0784A, ambiance tamisée',
+      sections: 'menu avec catégories (entrées/plats/desserts) et prix, galerie photo ambiance, réservation click-to-call, horaires',
+      cta: 'Réserver une table',
+      images: 'photos de plats gastronomiques, intérieur de restaurant chaleureux, terrasse'
+    },
+    'Pizzeria': {
+      style: 'warm red and cream theme, fond #FFF8F0, accents rouge #D32F2F et vert #388E3C italien',
+      sections: 'carte des pizzas avec prix et ingrédients, formules midi, livraison/emporter, commande par téléphone',
+      cta: 'Commander',
+      images: 'pizzas artisanales, four à bois, ingrédients frais'
+    },
+    'Coiffeur': {
+      style: 'elegant light theme, fond #FAFAF8, accents or #B8860B, typographie Playfair Display',
+      sections: 'tarifs détaillés (coupe femme/homme, coloration, balayage, brushing), galerie avant/après, prise de RDV',
+      cta: 'Prendre rendez-vous',
+      images: 'coiffures élégantes, intérieur de salon moderne, outils de coiffure'
+    },
+    'Boulangerie': {
+      style: 'warm artisan theme, fond crème #FDF8F0, accents brun #8B5E3C, typographie élégante',
+      sections: 'nos pains (4 types avec prix), viennoiseries, pâtisseries, savoir-faire artisanal, horaires 6h30-19h30',
+      cta: 'Découvrir nos produits',
+      images: 'pains dorés, croissants, vitrine de pâtisserie, boulanger au travail'
+    },
+    'Plombier': {
+      style: 'professional trust theme, fond #f8f9fa, accents bleu confiance #1a56db, header sombre',
+      sections: 'services (dépannage, installation, rénovation), zone intervention 20 villes autour, urgence 24h, devis gratuit, certifications RGE',
+      cta: 'Devis gratuit',
+      images: 'artisan au travail, outils professionnels, salle de bain rénovée'
+    },
+    'Artisan / BTP': {
+      style: 'professional trust theme, fond #f8f9fa, accents bleu #1a56db, bannière urgence rouge en haut',
+      sections: 'services avec icônes, réalisations avec photos, zone intervention, devis gratuit, certifications',
+      cta: 'Demander un devis',
+      images: 'chantier propre, avant/après rénovation, équipe au travail'
+    },
+  };
+
+  const design = secteurDesigns[data.secteur] || {
+    style: 'modern clean theme, fond blanc, accents cuivre #C0784A',
+    sections: 'services, à propos, témoignages, contact',
+    cta: 'Nous contacter',
+    images: 'photos professionnelles du commerce'
+  };
+
+  return `# Spec technique — Site vitrine "${data.nom_commerce}"
+
+## Projet
+Site vitrine professionnel pour "${data.nom_commerce}", ${data.secteur} à ${data.commune}, France.
+
+## Structure des fichiers
+\`\`\`
+/
+├── index.html          # Page principale, HTML sémantique
+├── style.css           # Styles CSS (responsive mobile-first)
+├── script.js           # JavaScript (animations, formulaire, navigation)
+├── netlify.toml        # Configuration Netlify
+└── assets/
+    └── (images placeholder)
+\`\`\`
+
+## netlify.toml
+\`\`\`toml
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+\`\`\`
+
+## Design
+- ${design.style}
+- Google Fonts : Inter (body) + Playfair Display (titres)
+- Mobile-first responsive avec breakpoints : 768px, 1024px, 1280px
+- Animations au scroll avec IntersectionObserver (fade-in, slide-up)
+- Header sticky avec navigation smooth-scroll
+- Bouton "${design.cta}" dans le header et le hero
+- Bouton click-to-call fixe position:fixed bottom-right sur mobile : tel:${data.telephone || '0600000000'}
+
+## Sections (index.html)
+1. **Header** : logo texte "${data.nom_commerce}" + nav (Accueil, Services, À propos, Contact) + bouton CTA
+2. **Hero** : plein écran, titre accrocheur + sous-titre "${data.secteur} à ${data.commune}" + CTA "${design.cta}" + image de fond
+3. **Services** : ${design.sections}
+4. **À propos** : histoire du commerce${data.prenom_gerant ? `, géré par ${data.prenom_gerant}` : ''}, savoir-faire local à ${data.commune}
+5. **Témoignages** : 3 avis clients réalistes avec prénoms français (Sophie L., Marc D., Claire B.) et 5 étoiles
+6. **Contact** : téléphone cliquable ${data.telephone || '06 00 00 00 00'}, adresse ${data.commune}${data.adresse ? ' ' + data.adresse : ''}, horaires, formulaire (nom + tel + message), Google Maps embed
+7. **Footer** : liens navigation, horaires résumés, mentions légales, "Site créé par WebPrestige"
+
+## Informations commerce
+- Nom : ${data.nom_commerce}
+${data.prenom_gerant ? `- Gérant : ${data.prenom_gerant}` : ''}
+- Secteur : ${data.secteur}
+- Ville : ${data.commune}
+${data.adresse ? `- Adresse : ${data.adresse}` : ''}
+- Téléphone : ${data.telephone || 'Non renseigné'}
+${data.description ? `- Description : ${data.description}` : ''}
+- Style : ${data.style_souhaite || 'Moderne et professionnel'}
+- Couleurs : ${data.couleurs || 'Adaptées au secteur'}
+
+## SEO
+- \`<title>\` : "${data.nom_commerce} — ${data.secteur} à ${data.commune}"
+- Meta description avec mots-clés locaux (${data.commune}, ${data.secteur})
+- Schema.org LocalBusiness JSON-LD dans le \`<head>\`
+- Balises Open Graph pour partage réseaux sociaux
+- Sitemap.xml basique
+
+## JavaScript (script.js)
+- Navigation responsive (hamburger menu mobile)
+- Smooth scroll vers les sections
+- IntersectionObserver pour animations fade-in au scroll
+- Formulaire de contact : validation côté client + envoi (Netlify Forms ou mailto fallback)
+- Lazy loading des images
+
+## CSS (style.css)
+- CSS custom properties pour les couleurs du thème
+- Mobile-first avec min-width media queries
+- Flexbox et Grid pour les layouts
+- Transitions et animations keyframes
+- ${design.images}
+
+## Déploiement Netlify
+1. \`git init && git add . && git commit -m "Initial"\`
+2. Push vers GitHub
+3. Connecter le repo à Netlify
+4. Build command : (aucune, site statique)
+5. Publish directory : \`.\`
+6. Configurer le domaine personnalisé
+
+Textes en FRANÇAIS. Design professionnel niveau agence.`;
+}
+
+
+async function storeAllPromptsInNotion(pageId, lovablePrompt, boltPrompt, websimPrompt, cursorPrompt) {
+  const prompts = [
+    { heading: 'Prompt Lovable', text: lovablePrompt },
+    { heading: 'Prompt Bolt.new', text: boltPrompt },
+    { heading: 'Prompt Websim.ai', text: websimPrompt },
+    { heading: 'Prompt Cursor/Claude', text: cursorPrompt },
+  ];
+
+  const blocks = [];
+  for (const { heading, text } of prompts) {
+    blocks.push({
+      object: 'block', type: 'heading_2',
+      heading_2: { rich_text: [{ text: { content: heading } }] }
+    });
+    // Chunk prompt into 2000-char blocks for Notion limit
+    for (let i = 0; i < text.length; i += 2000) {
+      blocks.push({
+        object: 'block', type: 'code',
+        code: { rich_text: [{ text: { content: text.substring(i, i + 2000) } }], language: 'plain text' }
+      });
+    }
+  }
+
+  // Notion API accepts max 100 blocks per request, batch if needed
+  for (let i = 0; i < blocks.length; i += 100) {
+    const batch = blocks.slice(i, i + 100);
+    const response = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${process.env.NOTION_API_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28'
+      },
+      body: JSON.stringify({ children: batch })
+    });
+    if (!response.ok) throw new Error('Notion store failed: ' + response.status);
+  }
+}
+
+// Keep legacy function for backward compatibility
 async function storeLovablePromptInNotion(pageId, prompt) {
   const chunks = [];
   for (let i = 0; i < prompt.length; i += 2000) {
